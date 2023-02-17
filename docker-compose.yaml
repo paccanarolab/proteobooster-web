@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  # corex
+  icrep:
+    build: 
+      context: ./icrepweb
+      dockerfile: Dockerfile.prod
+    command: gunicorn corex.wsgi:application --bind 0.0.0.0:80 -w 4
+    volumes:
+      - static_icrep:/home/app/icrep/staticfiles
+    # uncomment these to access the app directly for test purposes, 
+    # but expect everything to be broken.
+    ports:
+      - 8080:80
+    env_file: 
+      - ./.env.icrep.prod
+    networks:
+      - icrep
+    depends_on:
+      icrep-db:
+        condition: service_healthy
+  icrep-db:
+    image: postgres:14.0-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 5s
+      retries: 10 # this might seem too many retries, but there is data being copied...
+    volumes:
+      - icrep-db_data:/var/lib/postgresql/data/
+      # - ./databases/icrep.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./.env.icrep.prod.db
+    networks:
+      - icrep
+
+networks:
+  icrep:
+    name: icrep
+    external: false
+
+volumes:
+  icrep-db_data:
+  static_icrep:
