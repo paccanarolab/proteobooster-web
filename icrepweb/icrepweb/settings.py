@@ -37,7 +37,6 @@ ALLOWED_HOSTS = os.environ.get("ICREP_ALLOWED_HOSTS", default="").split(" ")
 
 INSTALLED_APPS = [
 	"base.apps.BaseConfig",
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -119,8 +118,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-# USE_X_FORWARDED_HOST = True
-# FORCE_SCRIPT_NAME = "/icrep"
+USE_X_FORWARDED_HOST = True
+
+FORCE_SCRIPT_NAME = "/icrep/"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

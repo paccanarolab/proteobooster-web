@@ -2,13 +2,15 @@ version: "3.9"
 services:
   # corex
   icrep:
-    build: 
-      context: ./icrepweb
-      dockerfile: Dockerfile.prod
+    image: torresmateo/icrep:dev
+    # build: 
+    #   context: ./icrepweb
+    #   dockerfile: Dockerfile.prod
     command: gunicorn icrepweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
       - static_icrep:/home/app/icrep/staticfiles
       - ./icrepweb/base:/home/app/icrep/base
+      - ./icrepweb/icrepweb:/home/app/icrep/icrepweb
     # uncomment these to access the app directly for test purposes, 
     # but expect everything to be broken.
     ports:
@@ -49,6 +51,7 @@ services:
   proxy:
     build: ./reverse-proxy
     volumes:
+      - ./reverse-proxy/default.conf:/etc/nginx/conf.d/nginx.conf
       - static_icrep:/home/app/icrep/staticfiles
     networks:
       - icrep

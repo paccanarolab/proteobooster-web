@@ -3,8 +3,7 @@ from django.db import models
 # Create your models here.
 class GOTerm(models.Model):
     """ GO terms contain information about the `go_id`, the description of
-        the `function`, the sub-`ontology` it belongs to (bp, mf or cc) or
-        the `release` it belongs to.
+        the `function`, the sub-`ontology` it belongs to (bp, mf or cc)
     """
     GO_ONTOLOGIES = (('bp', 'Biological Process'), ('mf', 'Molecular Function'), ('cc', 'Cellular component'))
     go_id = models.IntegerField()
@@ -35,10 +34,10 @@ class Protein(models.Model):
         or not.
     """
     DATABASES = ((0, 'SwissProt'), (1, 'TremBL'))
-    accession = models.CharField(max_length=10)
-    entry_name = models.CharField(max_length=20)
+    accession = models.CharField(max_length=30)
+    entry_name = models.CharField(max_length=30, default="")
     description = models.TextField()
-    gene = models.CharField(max_length=50, db_index=True) 
+#    gene = models.CharField(max_length=50, db_index=True) 
     database = models.PositiveIntegerField(choices=DATABASES, default=0)
     taxon_id = models.ForeignKey(Organism, on_delete=models.CASCADE)
     has_experimental_interactions = models.BooleanField(default=False)
@@ -134,7 +133,7 @@ class PredictedProteinInteraction(ProteinInteraction):
 class MITerm(models.Model):
     """ `MITerm` is a term that belongs to the MI ontology
     """
-    mi_id = models.IntegerField(primary_key=True)
+    mi_id = models.CharField(max_length=7)
     description = models.TextField()
 
 class Evidence(models.Model):
@@ -157,14 +156,6 @@ class Evidence(models.Model):
                                               on_delete=models.CASCADE)
 
 
-class StringencyValue(models.Model):
-    """ This represents different `e_value` values
-        cutoff for which complexes are predicted.
-    """
-
-    e_value = models.FloatField()
-
-
 class PredictedComplex(models.Model):
     """ Represents a predicted complex. It has an
         `stringency_value`, a `tax_id`, a set of
@@ -178,9 +169,6 @@ class PredictedComplex(models.Model):
     density = models.FloatField()
     quality = models.FloatField()
     pvalue = models.FloatField()
-    identifier = models.IntegerField()
-    stringency_value = models.ForeignKey(StringencyValue, on_delete=models.CASCADE)    
-    taxon_id = models.ForeignKey(Organism, on_delete=models.CASCADE)
     proteins = models.ManyToManyField(Protein)
     exp_interactions = models.ManyToManyField(ExperimentalProteinInteraction)
     pred_interactions = models.ManyToManyField(PredictedProteinInteraction)
