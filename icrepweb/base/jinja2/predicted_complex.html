@@ -1,0 +1,205 @@
+{% extends 'parts/base.html' %}
+
+{% block head %}
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/complexes.css') }}">
+        <script src="{{static('js/cytoscape.min.js')}}"></script>
+        <script src="{{static('js/cola.v3.min.js')}}"></script>
+        <script src="{{static('js/cytoscape-cola.js')}}"></script>
+        <script src="{{static('js/springy.js')}}"></script>
+        <script src="{{static('js/cytoscape-springy.js')}}"></script>
+        <script>
+            var getNetworkUrl = HOME_URL + "/api/complex/{{predicted_complex.id}}";
+            var INCLUDE_TrEMBL = false;
+        </script>
+        <script src="{{static('js/plot_complex.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="section-container">
+	<div id="title_division">
+		<div>
+			<h1>Predicted Complex</h1>
+			<div>
+				{% for protein in protein_list %}
+					<a href="{{ url('protein', kwargs={'protein_accession':  protein.accession}) }}"
+                        class="protein">
+                            {{ protein.accession }}
+                    </a>
+				{% endfor %}
+			</div>
+		</div>
+    </div>
+
+    <section id="graph">
+        <div id="cy"></div>
+    </section>
+
+    <section id="complex-information">
+
+        {% if experimental_interaction_list is defined %}
+            <h2>Experimental Interactions</h2>
+            {% if interaction_count > 0 %}
+            <div class="table_division">
+                <div class="scrollbar_division">
+                    <div id="interactions-container">
+                        <div class="interaction interaction-2columns">
+                            <div class="interaction-interactor">Interactor</div>
+                            <div class="interaction-interactor">Interactor</div>
+                        </div>
+                        {% for experimental_interaction in experimental_interaction_list %}
+                            <a href="{{ url('interaction', kwargs={'first_accession':experimental_interaction.first.accession, 'second_accession': experimental_interaction.second.accession} ) }}"
+                                class="interaction interaction-2columns">
+                                <div class="interaction-interactor">{{ experimental_interaction.first.accession }}</div>
+                                <div class="interaction-interactor">{{ experimental_interaction.second.accession }}</div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    {% if load_more_interactions %}
+                    <button id="load-more-interactions">Load More</button>
+                    {% endif %}
+                </div>
+            </div>
+            {%else%}
+            NO EXPERIMENTAL INTERACTIONS IN THIS COMPLEX
+            {%endif%}
+        {%endif%}
+
+        {% if inferred_interolog_list is defined %}
+        <h2>Interologs</h2>
+            {% if interolog_count > 0 %}
+                <div class="table_division">
+                    <div class="scrollbar_division">
+                        <div id="interologs-container">
+                            <div class="interolog interolog-3columns">
+                                <div class="interolog-quality">Quality</div>
+                                <div class="interolog-interactor">Interactor</div>
+                                <div class="interolog-interactor">Interactor</div>
+                            </div>
+                            {% for inferred_interolog in inferred_interolog_list %}
+                                <a href="{{ url('interolog', kwargs={'first_accession': inferred_interolog.first.accession, 'second_accession': inferred_interolog.second.accession}) }}"
+                                    class="interolog interaction-3columns">
+                                    <div class="interolog-quality">{{ '{0:.4g}'.format(inferred_interolog.quality) }}</div>
+                                    <div class="interolog-interactor">{{ inferred_interolog.first.accession }}</div>
+                                    <div class="interolog-interactor">{{ inferred_interolog.second.accession }}</div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% if load_more_interologs %}
+                        <button id="load-more-interologs">Load More</button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                NO INTEROLOGS INVOLVED IN THIS COMPLEX
+            {% endif %}
+        {% endif %}
+
+
+        {# 
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><span>Quality</span></th>
+                            <th><span>Interactor</span></th>
+                            <th><span>Interactor</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for experimental_interaction_or_inferred_interolog in experimental_interaction_and_inferred_interolog_list %}
+                            {% if experimental_interaction_or_inferred_interolog.interaction_type == "epi" %}
+                                <tr>
+                                    <td><a href="/pcrep/experimental_interaction_{{ experimental_interaction_or_inferred_interolog.id }}">
+                                        1
+                                    </a></td>
+                                    <td><a href="/pcrep/experimental_interaction_{{ experimental_interaction_or_inferred_interolog.id }}">
+                                        {{ experimental_interaction_or_inferred_interolog.first.accession }}
+                                    </a></td>
+                                    <td><a href="/pcrep/experimental_interaction_{{ experimental_interaction_or_inferred_interolog.id }}">
+                                        {{ experimental_interaction_or_inferred_interolog.second.accession }}
+                                    </a></td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td><a href="/pcrep/inferred_interolog_{{ experimental_interaction_or_inferred_interolog.id }}">
+                                        {{ experimental_interaction_or_inferred_interolog.predictedproteininteraction.quality }}
+                                    </a></td>
+                                    <td><a href="/pcrep/inferred_interolog_{{ experimental_interaction_or_inferred_interolog.id }}">
+                                        {{ experimental_interaction_or_inferred_interolog.first.accession }}
+                                    </a></td>
+                                    <td><a href="/pcrep/inferred_interolog_{{ experimental_interaction_or_inferred_interolog.id }}">
+                                        {{ experimental_interaction_or_inferred_interolog.second.accession }}
+                                    </a></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        #}
+
+        {#
+        <h3>Similar Predicted Complexes</h3>
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><span>Similarity</span></th>
+                            <th><span>Uniprot Accesions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for similar_predicted_complex in similar_predicted_complex_list %}
+                            {% with similarity=similar_predicted_complex.0, similar_predicted_complex_id=similar_predicted_complex.1, uniprot_accession_list=similar_predicted_complex.2 %}
+                            <tr>
+                                <td><a href="{{ url('predicted_complex', kwargs={'predicted_complex_id': similar_predicted_complex_id}) }}">
+                                    {{ similarity }}
+                                </a></td>
+                                <td>
+                                    {% for uniprot_accession in uniprot_accession_list %}
+                                        <a href="{{ url('predicted_complex', kwargs={'predicted_complex_id': similar_predicted_complex_id}) }}">
+                                            {{ uniprot_accession }}
+                                        </a>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        #}
+
+        <h2>GO Terms</h2>
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="goterms-container">
+                    <div class="goterm goterm-3columns">
+                        <div class="goterm-score">Score</div>
+                        <div class="goterm-identifier">Identifier</div>
+                        <div class="goterm-function">Function</div>
+                    </div>
+                    {% for complex_functional_assignment in complex_functional_assignment_list %}
+                        {# <a href="{{ url('go_term', kwargs={'go_term_goid': 'GO:{0:07d}'.format(complex_functional_assignment.goterm.go_id)}) }}" #}
+                        <a href="https://www.ebi.ac.uk/QuickGO/term/{{ "GO:{0:07d}".format(complex_functional_assignment.goterm.go_id) }}"
+                            class="goterm goterm-3columns" target="_blank">
+                            <div class="goterm-score">{{ '{0:.4g}'.format(complex_functional_assignment.pvalue) }}</div>
+                            <div class="goterm-identifier">{{ "GO:{0:07d}".format(complex_functional_assignment.goterm.go_id) }}</div>
+                            <div class="goterm-function">{{ complex_functional_assignment.goterm.function }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_goterms %}
+                <button id="load-more-goterms">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,3 +1,5 @@
+@use "common";
+
 table {
     /* Remove spacing between table cells (from Normalize.css) */
     border-collapse: collapse;
@@ -17,7 +19,7 @@ table caption {
 
 table td,
 table th {
-    border-left: 1px solid $table-td-border-left-color;/*  inner column border */
+    border-left: 1px solid common.$table-td-border-left-color;/*  inner column border */
     border-width: 0 0 0 1px;
     font-size: inherit;
     margin: 0;
@@ -33,7 +35,7 @@ table th:first-child {
 }
 
 table thead {
-    background-color: $table-thead-bg-color;
+    background-color: common.$table-thead-bg-color;
     color: #000;
     text-align: left;
     vertical-align: bottom;
@@ -50,7 +52,7 @@ table td {
 
 /* nth-child selector for modern browsers */
 table tr:nth-child(2n-1) td {
-    background-color: $table-odd-row-color;
+    background-color: common.$table-odd-row-color;
 }
 
 /* BORDERED TABLES */
@@ -67,7 +69,7 @@ table-bordered tbody > tr:last-child > td {
 table-horizontal td,
 table-horizontal th {
     border-width: 0 0 1px 0;
-    border-bottom: 1px solid $table-td-border-bottom-color;
+    border-bottom: 1px solid common.$table-td-border-bottom-color;
 }
 table-horizontal tbody > tr:last-child > td {
     border-bottom-width: 0;

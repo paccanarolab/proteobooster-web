@@ -12,34 +12,23 @@
 {% block content %}
     <section id="protein-search">
         <form action="." method="post">
-            UniProt Accession
-            <input class="text_field protein-input" name="uniprot_accession" type="text">
-            <br>
-            <br>
-            Search For
-            <br>
-            <input type="radio" name="items_to_search_for" value="experimental_interactions" checked="checked">Experimental Interactions
-            <input type="radio" name="items_to_search_for" value="inferred_interologs">Inferred Interologs
-            <input type="radio" name="items_to_search_for" value="predicted_complexes">Predicted Complexes
-            <br>
-            <br>
-            <input type="submit" value="SEARCH">
-<!--             GO Term Identifier -->
-<!--             <br> -->
-<!--             <input class="text_field" name="go_term_identifier" type="text"> -->
-<!--             <br> -->
-<!--             <br> -->
-<!--             Organism Name -->
-<!--             <br> -->
-<!--             <input class="text_field" name="organism_name" type="text"> -->
-<!--             <br> -->
-<!--             <br> -->
-<!--             Search For -->
-<!--             <br> -->
-<!--             <input type="radio" name="items_to_search_for" value="predicted_complexes" checked="checked">Predicted Complexes -->
-<!--             <br> -->
-<!--             <br> -->
-<!--             <input type="submit" value="SEARCH"> -->
+            {{ csrf_input }}
+            <div id="search-input">
+                <div id="organism-search-wrapper">
+                    <input id="organism-search" 
+                        class="text_field protein-search" 
+                        name="protein_accession" 
+                        type="text" 
+                        placeholder="Protein Accession (Soltu.DM.)"
+                        >
+                </div>
+                {#<i id="search-button" class="fa fa-search fa-3x" aria-hidden="true"></i>#}
+                <button id="search-button"
+                    type="submit">
+                        <i class="fa fa-search fa-3x" aria-hidden="true"></i>
+                    </button>
+                
+            </div>
         </form>
     </section>
     <div id="pcrep-info-home">

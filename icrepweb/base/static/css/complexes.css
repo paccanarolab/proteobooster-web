@@ -2,23 +2,29 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 50px auto;
-  grid-template-areas: "org-head org-head" ". ." "info graph"; }
+  grid-template-areas: "org-head org-head" ". ." "info graph";
+}
 
 #title_division {
-  grid-area: org-head; }
-  #title_division h1 {
-    margin-top: 10px;
-    margin-bottom: 10px; }
+  grid-area: org-head;
+}
+#title_division h1 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 
 #graph {
-  grid-area: graph; }
+  grid-area: graph;
+}
 
 #complex-information {
   grid-area: info;
   height: 55vw;
-  overflow-y: scroll; }
+  overflow-y: scroll;
+}
 
 #base-content {
-  padding-bottom: 0px; }
+  padding-bottom: 0px;
+}
 
 /*# sourceMappingURL=complexes.css.map */

@@ -1,0 +1,18 @@
+@use "common";
+@use "forms";
+@use "fonts";
+
+@media only screen and (max-width: 1023px) {
+    @include common.base-nav-sm();
+    @include common.navigation-small();
+}
+
+@media only screen and (min-width: 1024px) {
+    @include common.body-lg();
+    @include common.base-header-lg();
+    @include common.base-nav-lg();
+    @include common.navigation-lg();
+    @include common.base-container-lg();
+    @include forms.form-lg();
+    @include fonts.fontrules-lg();
+}

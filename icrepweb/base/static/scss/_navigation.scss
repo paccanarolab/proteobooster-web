@@ -1,5 +1,5 @@
 .nav-item{
-    height:100px;
+    height:50px;
     padding:15px;
     display:grid;
     background:$nav-item-background;
@@ -102,7 +102,7 @@ img.nav-icon{
 
     #nav-control-open:checked + #nav-buttons #nav-items {
         width: 250px;
-        height: 400px;
+        height: 160px;
         transition: width 0.7s ease 0.3s, height 0.3s ease;
     }
 
@@ -112,9 +112,8 @@ img.nav-icon{
         background:$nav-buttons-background;
     }
     #nav-items{
-        background:$nav-items-background;
         display:block;
-        overflow:scroll;
+        overflow:hidden;
         width:0px;
         height:0px;
         transition: height 0.3s ease 0.7s, width 0.7s ease;

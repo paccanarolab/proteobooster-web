@@ -1,3 +1,5 @@
+@use "common";
+
 @mixin form-lg(){
     #organism-search-section{
         min-width:1024px;
@@ -24,9 +26,9 @@
     //display: inline;
     //width: 68.22px;
     border-top:none;
-    border-right:1px solid $input-border-color;
-    //border-left:1px solid $input-border-color;
-    border-bottom:2px solid $input-border-color;
+    border-right:1px solid common.$input-border-color;
+    border-left:1px solid common.$input-border-color;
+    border-bottom:2px solid common.$input-border-color;
 }
 
 #organism-search-wrapper{
@@ -36,7 +38,7 @@
 }
 
 .form-help{
-    color:$form-help-color;
+    color:common.$form-help-color;
 }
 
 input{
@@ -45,11 +47,11 @@ input{
         padding:0.5em 1em;
         //border-radius:7px;
         height:2.75em;
-        background:$input-background;
+        background:common.$input-background;
         border-top:none;
-        border-right:1px solid $input-border-color;
-        border-left:1px solid $input-border-color;
-        border-bottom:2px solid $input-border-color;
+        border-right:1px solid common.$input-border-color;
+        border-left:1px solid common.$input-border-color;
+        border-bottom:2px solid common.$input-border-color;
         
     }
     &[type=checkbox]{
@@ -70,9 +72,9 @@ form ul li label svg{
     border: 2px solid black;
     border-radius:3px;
     border-top:none;
-    border-right:1px solid $input-border-color;
-    border-left:1px solid $input-border-color;
-    border-bottom:2px solid $input-border-color;
+    border-right:1px solid common.$input-border-color;
+    border-left:1px solid common.$input-border-color;
+    border-bottom:2px solid common.$input-border-color;
  }
 form ul li label svg path{
     stroke: black;

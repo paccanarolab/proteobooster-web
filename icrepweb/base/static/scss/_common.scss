@@ -58,7 +58,7 @@ a:link, a:visited, a:hover, a:active {
 
 @mixin body-lg(){
     body{
-        font-size:1.2em;
+        font-size:1.1em;
         grid-template-columns: 200px auto;
         grid-template-rows:75px auto; 
         grid-template-areas:
@@ -96,7 +96,7 @@ a:link, a:visited, a:hover, a:active {
     #base-nav{
         grid-area: nav;
         margin:0;
-        box-shadow: inset -11px 0px 10px -6px black;
+//        box-shadow: inset -11px 0px 10px -6px black;
     }
 }
 
@@ -304,7 +304,7 @@ $interolog-colour-hover: rgba(199, 74, 167,0.70);
     {
         background:$interolog-colour-title !important;
         color: white;
-        font-weight: bold;
+        //font-weight: bold;
     }
 
 }
@@ -366,7 +366,7 @@ $interaction-interaction-colour-hover: rgba(0,155,155,0.7);
     &:nth-child(1) .interaction-quality,
     &:nth-child(1) .interaction-name{
         background:$interaction-interaction-colour-title !important;
-        font-weight: bold;
+        //font-weight: bold;
         color:white;
     }    
 
@@ -422,7 +422,7 @@ $complex-colour-hover: rgba(7,109,221,0.7);
     &:nth-child(1) .complex-score,
     &:nth-child(1) .complex-proteins{
         background:$complex-colour-title;
-        font-weight: bold;
+        // font-weight: bold;
         color: white;
     }    
 }

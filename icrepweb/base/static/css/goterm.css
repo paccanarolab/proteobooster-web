@@ -2,18 +2,23 @@
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: 230px auto auto;
-  grid-template-areas: "org-head" "complexes" "proteins"; }
+  grid-template-areas: "org-head" "complexes" "proteins";
+}
 
 #title_division {
-  grid-area: org-head; }
-  #title_division h1 {
-    margin-bottom: 20px;
-    margin-top: 20px; }
+  grid-area: org-head;
+}
+#title_division h1 {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
 
 #proteins {
-  grid-area: proteins; }
+  grid-area: proteins;
+}
 
 #complexes {
-  grid-area: complexes; }
+  grid-area: complexes;
+}
 
 /*# sourceMappingURL=goterm.css.map */

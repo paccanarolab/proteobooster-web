@@ -40,9 +40,10 @@ $(document).ready(function() {
                 response(proteinCache[term]);
                 return;
             }
-            $.get({
+            $.ajax({
                 url: HOME_URL + '/api/proteins',
                 datatype: 'json',
+                type: 'GET',
                 data: {
                     term: request.term,
                 },

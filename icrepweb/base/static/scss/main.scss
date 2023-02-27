@@ -1,5 +1,5 @@
-@import "partials/common";
-@import "partials/fonts";
-@import "partials/forms";
-@import "partials/tables";
-@import "partials/media-queries";
+@use "common";
+@use "fonts";
+@use "forms";
+@use "tables";
+@use "media-queries";
