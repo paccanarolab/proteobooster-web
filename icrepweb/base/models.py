@@ -184,3 +184,4 @@ class ComplexFunctionalAssignment(models.Model):
     goterm = models.ForeignKey(GOTerm, on_delete=models.CASCADE)
     protein_complex = models.ForeignKey(PredictedComplex, on_delete=models.CASCADE)
     pvalue = models.FloatField(default=0.0)
+

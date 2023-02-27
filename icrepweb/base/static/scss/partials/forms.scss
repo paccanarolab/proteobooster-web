@@ -1,0 +1,105 @@
+@mixin form-lg(){
+    #organism-search-section{
+        min-width:1024px;
+        margin:auto;
+    }
+    input{
+        &[type=text]{
+            height:1.3em;
+            font-size:1.5em;
+        }
+    }
+    .form-help{
+        float:right;
+    }
+}
+
+#search-input{
+    display: grid;
+    grid-template-columns:auto 80px;
+
+}
+
+#search-button{
+    //display: inline;
+    //width: 68.22px;
+    border-top:none;
+    border-right:1px solid $input-border-color;
+    //border-left:1px solid $input-border-color;
+    border-bottom:2px solid $input-border-color;
+}
+
+#organism-search-wrapper{
+    //display: inline;
+    min-width:100% !important;
+    //width:calc(100% - 195px) !important;
+}
+
+.form-help{
+    color:$form-help-color;
+}
+
+input{
+    &[type=text]{
+        width:calc(100% - 30px);
+        padding:0.5em 1em;
+        //border-radius:7px;
+        height:2.75em;
+        background:$input-background;
+        border-top:none;
+        border-right:1px solid $input-border-color;
+        border-left:1px solid $input-border-color;
+        border-bottom:2px solid $input-border-color;
+        
+    }
+    &[type=checkbox]{
+        opacity:0;
+        width: 0px;
+        height: 0px;
+    }
+}
+form ul li label{
+    cursor:pointer;
+}
+form ul li label svg{
+    width:1.5em;
+    height:1.5em;
+    position:relative;
+    left:0;
+    top:.1em;
+    border: 2px solid black;
+    border-radius:3px;
+    border-top:none;
+    border-right:1px solid $input-border-color;
+    border-left:1px solid $input-border-color;
+    border-bottom:2px solid $input-border-color;
+ }
+form ul li label svg path{
+    stroke: black;
+    stroke-width: 13px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+label svg path {
+    transition: stroke-dashoffset .2s linear;
+}
+input[type="checkbox"]:checked ~ label svg path {
+    stroke-dashoffset: 0;
+}
+form > input[type=checkbox]{
+    width:40px;
+    height:40px;
+    margin:auto;
+}
+
+form > ul {
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:grid;
+    grid-template-columns:auto auto auto;
+}
+form > ul li{
+}
+

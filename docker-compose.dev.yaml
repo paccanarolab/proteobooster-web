@@ -52,7 +52,8 @@ services:
     build: ./reverse-proxy
     volumes:
       - ./reverse-proxy/default.conf:/etc/nginx/conf.d/nginx.conf
-      - static_icrep:/home/app/icrep/staticfiles
+        #- static_icrep:/home/app/icrep/staticfiles
+      - ./icrepweb/base/static:/home/app/icrep/staticfiles
     networks:
       - icrep
     ports:

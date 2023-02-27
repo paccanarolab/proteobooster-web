@@ -1,0 +1,630 @@
+// body 
+$body-background:#fff;
+// header 
+$header-background:#f1f1f1;
+// nav 
+$nav-background:#f1f1f1;
+$nav-animation-container-background:DarkSlateGray;
+$navigation-icon-bars-color:white;
+$nav-buttons-background:DarkCyan;
+$nav-items-background:green;
+$nav-item-background:#f1f1f1;
+$nav-item-hover-background:#28ADB4;
+$selected-nav-item-background:#28ADB4;
+// content 
+$content-background:$body-background;
+$input-background:rgba(255,255,255,0.75);
+$input-border-color:rgba(0,0,0,0.25);
+    // forms 
+    $form-help-color:rgba(50,50,50,0.75);
+
+    // tables
+    $table-border-color:#cbcbcb;
+        // thead
+        $table-thead-bg-color:#e0e0e0;
+
+        // td/th
+        $table-td-border-left-color:#cbcbcb;
+        $table-td-border-bottom-color:#cbcbcb;
+        $table-odd-row-color:#f1f1f1;
+// footer 
+$footer-background:#f1f1f1;
+
+html{
+    height:100%;
+    color:auto;
+}
+
+body{
+    /*font-size:2.5em;*/
+    height:100%;
+    display:grid;
+    background:$body-background;
+    padding:0px;
+    margin:0px;
+    grid-template-columns: 100%;
+    grid-template-rows: 100px auto;
+    font-family:"Raleway", "Open Sans", sans-serif; 
+} 
+
+//link decorations
+/* unvisited link */
+a:link, a:visited, a:hover, a:active {
+    color: black;
+    text-decoration:none;
+}
+
+
+
+@mixin body-lg(){
+    body{
+        font-size:1.2em;
+        grid-template-columns: 200px auto;
+        grid-template-rows:75px auto; 
+        grid-template-areas:
+            "header nav"
+            "content content"
+            "content content"
+            "content content";
+           
+    }
+}
+
+#main-logo{
+    margin-top: 5px;
+    width: 145px;
+}
+
+#base-header{
+    text-align:center;
+    background-color:$header-background;
+}
+
+@mixin base-header-lg(){
+    #base-header{
+        grid-area: header;
+        //box-shadow: inset -11px 0px 10px -6px black;
+    }
+
+}
+
+#base-nav{
+    background-color:$nav-background;
+}
+
+@mixin base-nav-lg(){
+    #base-nav{
+        grid-area: nav;
+        margin:0;
+        box-shadow: inset -11px 0px 10px -6px black;
+    }
+}
+
+@mixin base-nav-sm() {
+    #base-nav{
+        right:0;
+        position:absolute;
+        top:0;
+        left:0;
+        width:50px;
+    }
+}
+
+#base-container{
+    display:grid;
+    grid-template-rows:auto 60px;
+    max-height:100%;
+    overflow-y:auto;
+}
+
+@mixin base-container-lg(){
+    #base-container{
+        grid-area: content;
+    }
+}
+
+#base-content{
+    background-color:$content-background;
+    max-width:calc(100% - 30px);
+    display:grid;
+    padding:15px;
+}
+
+#base-footer{
+    a{
+        &:first-of-type{
+            grid-area: image
+        }
+        color: $selected-nav-item-background;
+    }
+    div {
+        grid-area:info;
+    }
+    padding:15px;
+    text-align:center;
+    background-color:$footer-background;
+    display: grid;
+    grid-template-columns: auto 88px auto auto;
+    grid-template-areas: ". image info .";
+    grid-gap:0;
+}
+
+// export buttons
+.export-link{
+    &:hover{
+        background: $footer-background;       
+    }
+    background: $selected-nav-item-background;
+    padding:3px 5px 0px 5px;
+    color:white !important;
+    border-radius: 5px;
+    font-family: 'roboto';
+    font-size: 0.7em;
+}
+
+
+// NAVIGATION
+
+@import "navigation";
+/*.nav-item{
+    height:100px;
+    padding:15px;
+    display:grid;
+    background:$nav-item-background;
+    //grid-template-columns: 100%;
+    //grid-template-columns: auto auto;
+    //align-items:center;
+    //justify-content:center;
+    border-top: 1px solid rgba(50, 184, 187, 0.49);
+    border-bottom: 1px solid rgba(95, 95, 95, 1);
+    text-align:center;
+    text-decoration:none;
+    color:black;
+    box-shadow: inset -11px 0px 8px -10px black;
+}
+
+
+
+.selected-nav-item{
+    background:$selected-nav-item-background;
+    box-shadow: none;
+    color:white;
+}
+
+
+.selected-nav-item img.nav-icon{ filter:none;}
+img.nav-icon{
+    max-width:5em;
+    margin:0 auto 0 auto;
+    filter:grayscale(100%);
+}*/
+
+
+//HOME
+
+#pcrep-info-home{
+    margin:auto;
+    text-align:center;
+}
+#pcrep-info-home h1{
+    margin-bottom:0;
+}
+#pcrep-info-home h2{
+    margin-top:0;
+}
+
+
+
+// ============================== ELEMENTS ================================ //
+
+//counts
+.count{
+    font-family: 'Roboto';
+    display: inline;
+}
+
+
+// load more buttons
+#load-more-interologs,
+#load-more-interactions,
+#load-more-proteins,
+#load-more-complexes,
+#load-more-evidence,
+#load-more-goterms{
+    &:hover{
+        background-color: $nav-item-hover-background;
+    }
+    background-color: $selected-nav-item-background;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;    
+}
+
+/*============================== proteins ==============================*/
+
+.protein{
+    font-family:'Roboto';
+    padding: 5px;
+    margin: 5px;
+    display: inline-block;
+    &:nth-child(even){
+        background:Gold;
+    }
+    &:nth-child(odd){
+        background:GoldenRod;
+    }
+    &:hover{
+        background:yellow;
+    }
+}
+
+/*============================== interologs ==============================*/
+
+$interolog-colour-title: rgba(199, 74, 167,1);
+$interolog-colour-even: rgba(199, 74, 167,0.50);
+$interolog-colour-odd: rgba(199, 74, 167,0.30);
+$interolog-colour-hover: rgba(199, 74, 167,0.70);
+
+.interolog{
+    display:grid;
+    //grid-template-columns:1fr 2fr 2fr;
+    //grid-template-rows:100%;
+    font-family:'Roboto';
+    //float:left;
+    padding:0.5px;
+    &:nth-child(even) .interolog-interactor,
+    &:nth-child(even) .interolog-quality,
+    &:nth-child(even) .interolog-name
+    {
+        background:$interolog-colour-even;
+    }
+    &:nth-child(odd) .interolog-interactor,
+    &:nth-child(odd) .interolog-quality,
+    &:nth-child(odd) .interolog-name{
+        background:$interolog-colour-odd;
+    }
+
+
+    &:hover .interolog-interactor,
+    &:hover .interolog-quality,
+    &:hover .interolog-name
+    {
+        background: $interolog-colour-hover;
+    }
+
+    &:nth-child(1) .interolog-interactor,
+    &:nth-child(1) .interolog-quality,
+    &:nth-child(1) .interolog-name
+    {
+        background:$interolog-colour-title !important;
+        color: white;
+        font-weight: bold;
+    }
+
+}
+
+.interolog-3columns{
+    grid-template-columns:1fr 7fr 7fr;
+}
+
+.interolog-4columns{
+    grid-template-columns:2fr 1fr 4fr 4fr;
+    
+}
+
+.interolog-quality{
+    padding: 0 5px;
+}
+.interolog-interactor{
+    padding: 0 5px;
+}
+.interolog-name{
+    padding: 0 5px;
+}
+
+/*.interolog:hover .interolog-interactor,
+.interolog:hover .interolog-quality,
+.interolog:hover .interolog-name,
+.interolog-4columns:hover .interolog-interactor,
+.interolog-4columns:hover .interolog-quality,
+.interolog-4columns:hover .interolog-name{
+    background: $interolog-colour-hover;
+}*/
+
+/*============================== interactions ==============================*/
+
+$interaction-interaction-colour-title: rgba(0,155,155,1);
+$interaction-interaction-colour-even: rgba(0,155,155,0.50);
+$interaction-interaction-colour-odd: rgba(0,155,155,0.30);
+$interaction-interaction-colour-hover: rgba(0,155,155,0.7);
+.interaction{
+    font-family:'Roboto';
+    display:grid;
+    padding:0.5px;
+    &:nth-child(even) .interaction-interactor,
+    &:nth-child(even) .interaction-quality,
+    &:nth-child(even) .interaction-name{
+        background:$interaction-interaction-colour-even;
+    }
+    &:nth-child(odd) .interaction-interactor,
+    &:nth-child(odd) .interaction-quality,
+    &:nth-child(odd) .interaction-name{
+        background:$interaction-interaction-colour-odd;
+    }    
+    &:hover .interaction-interactor,
+    &:hover .interaction-quality,
+    &:hover .interaction-name{
+        background:$interaction-interaction-colour-hover;
+    }
+    &:nth-child(1) .interaction-interactor,
+    &:nth-child(1) .interaction-quality,
+    &:nth-child(1) .interaction-name{
+        background:$interaction-interaction-colour-title !important;
+        font-weight: bold;
+        color:white;
+    }    
+
+}
+.interaction-4columns{
+    grid-template-columns:1fr 1fr 3fr 3fr;
+}
+.interaction-3columns{
+    grid-template-columns:1fr 2fr 2fr;
+}
+.interaction-2columns{
+    grid-template-columns:2fr 2fr;
+}
+
+.interaction-quality{
+    padding: 0 5px;
+}
+.interaction-name{
+    padding: 0 5px;
+}
+.interaction-interactor{
+    padding: 0 5px;
+}
+
+
+/*============================== complexes ==============================*/
+$complex-colour-title: rgba(7,109,221,1);
+$complex-colour-even: rgba(7,109,221,0.50);
+$complex-colour-odd: rgba(7,109,221,0.30);
+$complex-colour-hover: rgba(7,109,221,0.7);
+
+.complex{
+    display: grid;
+    grid-template-columns: 1.5fr 10fr;
+    font-family: 'Roboto';
+    padding:0.5px;
+    &:nth-child(even) .complex-size,
+    &:nth-child(even) .complex-score,
+    &:nth-child(even) .complex-proteins{
+        background:$complex-colour-even;
+    }
+    &:nth-child(odd) .complex-size,
+    &:nth-child(odd) .complex-score,
+    &:nth-child(odd) .complex-proteins{
+        background:$complex-colour-odd;
+    }    
+    &:hover .complex-size,
+    &:hover .complex-score,
+    &:hover .complex-proteins{
+        background:$complex-colour-hover;
+    }
+    &:nth-child(1) .complex-size,
+    &:nth-child(1) .complex-score,
+    &:nth-child(1) .complex-proteins{
+        background:$complex-colour-title;
+        font-weight: bold;
+        color: white;
+    }    
+}
+
+.complex-3columns{
+    grid-template-columns: 2.5fr 1.5fr 10fr;
+}
+
+.complex-size,
+.complex-score,
+.complex-proteins{
+    padding: 0 5px;
+}
+
+/*============================== evindece ==============================*/
+$evidence-colour-title: rgba(112,212,155,1);
+$evidence-colour-even: rgba(112,212,155,0.50);
+$evidence-colour-odd: rgba(112,212,155,0.30);
+$evidence-colour-hover: rgba(112,212,155,0.70);
+
+.evidence{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-family: 'Roboto';
+    padding:0.5px;
+    &:nth-child(even) .evidence-pubmed_id,
+    &:nth-child(even) .evidence-interaction_type,
+    &:nth-child(even) .evidence-detection_method{
+        background:$evidence-colour-even;
+    }
+    &:nth-child(odd) .evidence-pubmed_id,
+    &:nth-child(odd) .evidence-interaction_type,
+    &:nth-child(odd) .evidence-detection_method{
+        background:$evidence-colour-odd;
+    }    
+    &:hover .evidence-pubmed_id,
+    &:hover .evidence-interaction_type,
+    &:hover .evidence-detection_method{
+        background:$evidence-colour-hover;
+    }
+    &:nth-child(1) .evidence-pubmed_id,
+    &:nth-child(1) .evidence-interaction_type,
+    &:nth-child(1) .evidence-detection_method{
+        background:$evidence-colour-title !important;
+        font-weight: bold;
+    }    
+}
+
+.evidence-pubmed_id{
+    padding: 0 5px;
+}
+.evidence-interaction_type{
+    padding: 0 5px;
+}
+.evidence-detection_method{
+    padding: 0 5px;
+}
+
+/*============================== goterm ==============================*/
+$goterm-colour-title: rgba(255,198,57,1);
+$goterm-colour-even: rgba(255,198,57,0.50);
+$goterm-colour-odd: rgba(255,198,57,0.30);
+$goterm-colour-hover: rgba(255,198,57,0.7);
+
+
+.goterm{
+    display: grid;
+    font-family: 'Roboto';
+    padding:0.5px;
+    &:nth-child(even) .goterm-score,
+    &:nth-child(even) .goterm-identifier,
+    &:nth-child(even) .goterm-function{
+        background:$goterm-colour-even;
+    }
+    &:nth-child(odd) .goterm-score,
+    &:nth-child(odd) .goterm-identifier,
+    &:nth-child(odd) .goterm-function{
+        background:$goterm-colour-odd;
+    }    
+    &:hover .goterm-score,
+    &:hover .goterm-identifier,
+    &:hover .goterm-function{
+        background:$goterm-colour-hover;
+    }
+    &:nth-child(1) .goterm-score,
+    &:nth-child(1) .goterm-identifier,
+    &:nth-child(1) .goterm-function{
+        background:$goterm-colour-title !important;
+        font-weight: bold;
+    }    
+}
+
+.goterm-3columns{
+    grid-template-columns: 1fr 1fr 5fr;
+}
+
+.goterm-2columns{
+    grid-template-columns: 2fr 8fr;
+}
+
+.goterm-score{
+    padding: 0 5px;
+}
+.goterm-identifier{
+    padding: 0 5px;
+}
+.goterm-function{
+    padding: 0 5px;
+}
+
+
+
+// CYTOSCAPE 
+
+#cy{
+    min-width:500px;
+    min-height:500px;
+    width:50vw;
+    height:54vw;
+    //background-color:gray;
+    border:1px solid gray;
+}
+
+// include TrEMBL slider, taken from 
+// https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_switch
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#trembl-toggle, .switch{
+    vertical-align: middle;
+}
+
+//tooltips
+.ui-tooltip-content{
+    a{
+        color:blue;
+    }
+}
+
+section{
+    > h2{
+        border-bottom: 1.5px solid $nav-item-hover-background;;
+    }
+}
+
+#section-container{
+    section{
+        margin-top: 150px;
+    }
+
+}

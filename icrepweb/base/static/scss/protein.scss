@@ -1,0 +1,44 @@
+$nav-item-hover-background:#28ADB4;
+#section-container{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:230px auto;
+    grid-template-areas:
+        "prot-head"
+        "info";
+}
+
+#uniprot-link{
+    float:right;
+    background-color:$nav-item-hover-background;
+    padding:0.3em;
+    a{
+        color:white;
+        font-weight:bold;
+    }
+}
+
+#title_division{
+    h1, h2{
+        margin-top: 0;
+        margin-bottom: 50px;
+    }
+    grid-area:prot-head;
+}
+#info{
+    grid-area:info;
+}
+
+/*
+#experimental-interactions{
+    grid-area:interactions;
+}
+#interologs{
+    grid-area:interologs;
+}
+#complexes{
+    grid-area:complexes;
+}
+#goterms{
+    grid-area:goterms;
+}*/

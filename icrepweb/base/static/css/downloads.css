@@ -1,0 +1,25 @@
+#section-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-items: center;
+  align-items: center; }
+
+.download-button {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  width: 300px;
+  height: 300px;
+  font-size: 1.1em;
+  font-weight: bold;
+  -webkit-box-shadow: 0px 0px 36px -9px rgba(0, 0, 0, 0.92);
+  -moz-box-shadow: 0px 0px 36px -9px rgba(0, 0, 0, 0.92);
+  box-shadow: 0px 0px 36px -9px rgba(0, 0, 0, 0.92);
+  text-align: center;
+  transition: all .2s ease-in-out; }
+  .download-button:hover {
+    transform: scale(1.1); }
+  .download-button img {
+    width: 200px; }
+
+/*# sourceMappingURL=downloads.css.map */

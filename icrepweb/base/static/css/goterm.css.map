@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,kBAAkB;EACd,OAAO,EAAC,IAAI;EACZ,qBAAqB,EAAC,IAAI;EAC1B,kBAAkB,EAAC,eAAe;EAClC,mBAAmB,EACf,iCAEU;;AAGlB,eAAe;EAKX,SAAS,EAAC,QAAQ;EAJrB,kBAAE;IACD,aAAa,EAAE,IAAI;IACnB,UAAU,EAAE,IAAI;;AAKlB,SAAS;EACL,SAAS,EAAC,QAAQ;;AAGtB,UAAU;EACN,SAAS,EAAC,SAAS",
+"sources": ["../scss/goterm.scss"],
+"names": [],
+"file": "goterm.css"
+}

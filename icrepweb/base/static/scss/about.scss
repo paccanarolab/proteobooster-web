@@ -1,0 +1,50 @@
+#section-container{
+    display:grid;
+    //grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 5.5fr;
+    justify-items: center;
+}
+
+
+#logos{
+    vertical-align: middle;
+    grid-template-columns: 1fr 1fr;
+    display: grid;
+}
+
+.about-logo{
+    width: 360px;
+}
+
+#rhul-logo,
+#paccanarolab-logo,
+#cssb-link,
+#arsis-logo{
+    align-self:center;
+    text-align: center;
+}
+#paccanarolab-logo img{
+    height:100px;
+    width: auto;
+}
+
+#about-message{
+    text-align: center;
+    margin:0 auto 0 auto;
+    align-self: end;
+}
+
+#message-wrapper{
+    display: inline;
+    vertical-align: bottom;
+}
+
+#cssb-acronym{
+    font-size: 150px;
+    line-height: 115px;
+    display: block;
+}
+
+#arsis-text{
+    margin-bottom: 15px;
+}

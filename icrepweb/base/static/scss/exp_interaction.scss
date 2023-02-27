@@ -1,0 +1,44 @@
+$nav-item-hover-background:#28ADB4;
+#section-container{
+    display:grid;
+    max-width:100%;
+    grid-template-columns:auto;
+    grid-template-rows:120px auto auto auto auto;
+    grid-template-areas:
+        "prot-head"
+        "evidence"
+        "interologs"
+        "interactions"
+        "complexes";
+}
+
+#uniprot-link{
+    float:right;
+    background-color:$nav-item-hover-background;
+    padding:0.3em;
+    a{
+        color:white;
+        font-weight:bold;
+    }
+}
+
+#title_division{
+    h1, h2{
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+    grid-area:prot-head;
+}
+
+#experimental-interactions{
+    grid-area:interactions;
+}
+#interologs{
+    grid-area:interologs;
+}
+#complexes{
+    grid-area:complexes;
+}
+#evidence{
+    grid-area:evidence;
+}

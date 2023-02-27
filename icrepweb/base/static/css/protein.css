@@ -1,0 +1,38 @@
+#section-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 230px auto;
+  grid-template-areas: "prot-head" "info"; }
+
+#uniprot-link {
+  float: right;
+  background-color: #28ADB4;
+  padding: 0.3em; }
+  #uniprot-link a {
+    color: white;
+    font-weight: bold; }
+
+#title_division {
+  grid-area: prot-head; }
+  #title_division h1, #title_division h2 {
+    margin-top: 0;
+    margin-bottom: 50px; }
+
+#info {
+  grid-area: info; }
+
+/*
+#experimental-interactions{
+    grid-area:interactions;
+}
+#interologs{
+    grid-area:interologs;
+}
+#complexes{
+    grid-area:complexes;
+}
+#goterms{
+    grid-area:goterms;
+}*/
+
+/*# sourceMappingURL=protein.css.map */

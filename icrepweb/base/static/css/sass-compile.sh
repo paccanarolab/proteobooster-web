@@ -1,0 +1,1 @@
+sass --watch ../scss/main.scss:main.css ../scss/exp_interaction.scss:exp_interaction.css ../scss/goterm.scss:goterm.css ../scss/complexes.scss:complexes.css ../scss/inferred_interolog.scss:inferred_interolog.css ../scss/organism.scss:organism.css ../scss/protein.scss:protein.css ../scss/about.scss:about.css ../scss/downloads.scss:downloads.css ../scss/spinner.scss:spinner.css

@@ -1,0 +1,53 @@
+#section-container {
+  display: grid;
+  /*grid-template-areas:
+      "org-head org-head org-head org-head"
+      "proteins interactions interologs complexes";
+      */
+  grid-template-rows: 120px auto auto auto auto;
+  grid-template-areas: "org-head" "interactions" "interologs" "complexes" "proteins"; }
+
+#title_division {
+  grid-area: org-head;
+  display: grid;
+  grid-template-columns: 10fr 205px; }
+  #title_division h1 {
+    margin-top: 0; }
+
+#sections-proteins {
+  grid-area: proteins; }
+
+#experimental-interactions {
+  grid-area: interactions; }
+
+#interologs {
+  grid-area: interologs; }
+
+#complexes {
+  grid-area: complexes; }
+
+#search-interaction, #search-interolog {
+  float: right; }
+  #search-interaction input[type=text], #search-interolog input[type=text] {
+    border-top: 1px solid rgba(0, 0, 0, 0.25);
+    font-size: 25px;
+    width: 250px;
+    margin: 0;
+    padding: 0; }
+
+/* protein search */
+/*.protein-inputs{
+    //width: 100% !important;
+    display:grid;
+    grid-template-columns:8fr 8fr 1fr;
+    width: 200px;
+}
+.protein-input{
+    padding-right: 0 !important;
+}
+
+.form-title{
+    text-align: center;
+}*/
+
+/*# sourceMappingURL=organism.css.map */

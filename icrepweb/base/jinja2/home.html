@@ -1,0 +1,49 @@
+{% extends "parts/base.html" %}
+
+{% block head %}
+        <script src="{{ static('js/spinner.js') }}"></script>
+        <script src="{{ static('js/autocomplete.js') }}"></script>
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/spinner.css') }}">
+
+{% endblock %}
+
+{% block content %}
+    <section id="protein-search">
+        <form action="." method="post">
+            UniProt Accession
+            <input class="text_field protein-input" name="uniprot_accession" type="text">
+            <br>
+            <br>
+            Search For
+            <br>
+            <input type="radio" name="items_to_search_for" value="experimental_interactions" checked="checked">Experimental Interactions
+            <input type="radio" name="items_to_search_for" value="inferred_interologs">Inferred Interologs
+            <input type="radio" name="items_to_search_for" value="predicted_complexes">Predicted Complexes
+            <br>
+            <br>
+            <input type="submit" value="SEARCH">
+<!--             GO Term Identifier -->
+<!--             <br> -->
+<!--             <input class="text_field" name="go_term_identifier" type="text"> -->
+<!--             <br> -->
+<!--             <br> -->
+<!--             Organism Name -->
+<!--             <br> -->
+<!--             <input class="text_field" name="organism_name" type="text"> -->
+<!--             <br> -->
+<!--             <br> -->
+<!--             Search For -->
+<!--             <br> -->
+<!--             <input type="radio" name="items_to_search_for" value="predicted_complexes" checked="checked">Predicted Complexes -->
+<!--             <br> -->
+<!--             <br> -->
+<!--             <input type="submit" value="SEARCH"> -->
+        </form>
+    </section>
+    <div id="pcrep-info-home">
+        <h1>What is iC<span style="font-size:0.7em">REP</span>?</h1>
+        <h2>ICRep is a repository of inferred proteins interactions and complex.</h2>
+    </div>
+{% endblock %}
