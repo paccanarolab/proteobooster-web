@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="description" content="{% if meta_description is defined %}{{ title }}{% else %}A web tool to explore protein interactions and complexes.{% endif %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>{% if title is defined %}{{ title }}{% else %}ICRep{% endif %}</title>
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('font-awesome/css/font-awesome.min.css') }}">
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/jquery-ui.min.css') }}">
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/main.css') }}"/>
+        <script>
+            var HOME_URL = "{{ url('home').rstrip('/') }}";
+            // this is a utility function to get urls from the javascripts... a bit of a hack
+            var getUrl = function(view, id){
+                url = HOME_URL;
+                switch(view){
+                    case 'protein':
+                        url += "{{ url('protein', kwargs={'protein_accession': 'Z2BC19'}) }}".replace('Z2BC19', id);// the accession was selected because is outdated
+                        break;
+                    case 'organism':
+                        url += "{{ url('organism', kwargs={'organism_taxon_id': '0'}) }}".replace('0', id);
+                        break;
+                    case 'interaction':
+                        url += "{{ url('interaction', kwargs={'first_accession': 'Z2BC19', 'second_accession': 'Z2BC18'}) }}".replace('Z2BC19', id.first).replace('Z2BC18', id.second);
+                        break;
+                    case 'interolog':
+                        url += "{{ url('interolog', kwargs={'first_accession': 'Z2BC19', 'second_accession': 'Z2BC18'}) }}".replace('Z2BC19', id.first).replace('Z2BC18', id.second);
+                        break;
+                    case 'complex':
+                        url += "{{ url('complex', kwargs={'predicted_complex_id': '0'}) }}".replace('0', id);
+                        break;
+                    case 'go_term':
+                        url += "{{ url('go_term', kwargs={'go_term_goid': 'GO:0000000'}) }}".replace('GO:0000000', id);
+                        break;
+                    default:
+                        return HOME_URL;
+                }
+                return url;
+            }
+        </script>
+        <script src="https://use.typekit.net/zhh0uta.js"></script>
+        <script>try{Typekit.load({ async: true });}catch(e){}</script>
+        <script src="{{static('js/jquery-3.2.1.min.js')}}"></script>
+        <script src="{{static('js/jquery-ui.min.js')}}"></script>
+        <script src="{{static('js/nav.js')}}"></script>
+        <script src="{{static('js/tremblToggle.js')}}"></script>
+        {% block head %}
+            <!-- override this block in the children to add more css or javascript -->
+        {% endblock %}
+    </head>
+    <body>
+        <header id="base-header">
+            {% block header %}
+                <a href="{{ url('home') }}">
+                    <img id="main-logo" src="{{ static('images/logo.jpg')}}" alt=''/>
+                    {#<h2>iC<span style="font-size:0.7em">REP</span></h2>#}
+                </a>
+            {% endblock %}
+        </header>
+        <nav id="base-nav">
+            {% block nav %}
+            <div id="nav-animation-container">
+                <input type="checkbox" id="nav-control-open"/>
+                <div id="nav-buttons">
+                    <div id="nav-items">
+                        <!--a href="{{ url('home') }}" class="nav-item {% if active == 'home' %}selected-nav-item{% endif %}">
+                            <img class="nav-icon" src="{{ static('icons/home.svg')}}" alt="home">
+                            <span>HOME</span>
+                            <div class='arrow-left'></div>
+                        </a>
+                        <a href='/organism_search' class="nav-item {% if active == 'organism' %}selected-nav-item{% endif %}">
+                            <img class="nav-icon" src="{{ static('icons/cell.svg')}}" alt="organism">
+                            <span>ORGANISM SEARCH</span>
+                            <div class='arrow-left'></div>
+                        </a>
+                        <a href='/protein_search' class="nav-item {% if active == 'protein-search' %}selected-nav-item{% endif %}">
+                            <img class="nav-icon" src="{{ static('icons/dna.svg')}}" alt="protein-search">
+                            <span>PROTEIN SEARCH</span>
+                            <div class='arrow-left'></div>
+                        </a-->
+                        <a href="{{ url('downloads') }}" id="nav-download" class="nav-item {% if active == 'downloads' %}selected-nav-item{% endif %}">
+                            <!--img class="nav-icon" src="{{ static('icons/download.svg')}}" alt="downloads"-->
+                            <span>Downloads</span>
+                        </a>
+                        <a href="{{ url('about') }}" id="nav-about" class="nav-item {% if active == 'about' %}selected-nav-item{% endif %}">
+                            <!--img class="nav-icon" src="{{ static('icons/info.svg')}}" alt="about"-->
+                            <span>About</span>
+                        </a>
+                    </div>
+                    <span id="nav-toggle"></span>
+                </div>
+            </div>
+            {% endblock%}
+        </nav>
+        <div id="base-container">
+            <section id="base-content">
+                {% block content %}
+                {% endblock %}
+            </section>
+            <footer id="base-footer">
+                {% block footer %}
+                <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a> <div>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</div>
+                {% endblock %}
+            </footer>
+        </div>
+    </body>
+</html>
