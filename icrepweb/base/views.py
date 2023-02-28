@@ -6,6 +6,13 @@ from .models import Protein, ExperimentalProteinInteraction, PredictedProteinInt
 import json
 import logging
 from itertools import chain
+from collections import defaultdict
+
+LIMITS = {
+    "MAX_GRAPH_SIZE":20,
+    "MIN_QUALITY":95,
+}
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +42,20 @@ def home(request):
         else:
             logger.warning("this is NOT valid")
     return render(request, "home.html", context) 
+
+def downloads(request):
+    data = {
+        'active':'downloads',
+        'title':'ICRep | Downloads'
+    }
+    return render(request, "downloads.html", data)
+
+def about(request):
+    data = {
+        'active':'about',
+        'title':'ICRep | About'
+    }
+    return render(request, "about.html", data)
 
 def protein(request, protein_accession):
     protein = get_object_or_404(Protein, accession=protein_accession)
@@ -77,7 +98,47 @@ def interaction(request, first_accession, second_accession):
     return render(request, "home.html") 
 
 def interolog(request, first_accession, second_accession):
-    return render(request, "home.html") 
+    data = dict()
+    data['tooltips'] = TOOLTIPS
+    first = get_object_or_404(Protein, accession=first_accession)
+    second = get_object_or_404(Protein, accession=second_accession)
+    inferred_interolog = get_object_or_404(PredictedProteinInteraction, 
+        (Q(first=first) & Q(second=second)) |
+        (Q(second=first) & Q(first=second)) 
+    )    
+    source_experimental_interaction_list = []
+    sibling_inferred_interolog_list = []
+
+    inferred_interolog_with_same_interactors_set = PredictedProteinInteraction.objects.filter(
+        (Q(first=inferred_interolog.first) & Q(second=inferred_interolog.second)) |
+        (Q(second=inferred_interolog.first) & Q(first=inferred_interolog.second))
+        ).order_by('-quality')[:10]
+
+    data['interaction_count'] = PredictedProteinInteraction.objects.filter( (Q(first=inferred_interolog.first) & Q(second=inferred_interolog.second)) | (Q(second=inferred_interolog.first) & Q(first=inferred_interolog.second))).count()
+    data['load_more_interactions'] = data['interaction_count'] > 10
+
+    # TODO: ask Alfonso whether sibling interologs are interesting 
+    for inferred_interolog_with_same_interactors in inferred_interolog_with_same_interactors_set:
+        source_experimental_interaction = inferred_interolog_with_same_interactors.origin_experimental
+        source_experimental_interaction_list.append([
+            source_experimental_interaction,
+            inferred_interolog_with_same_interactors.quality])
+        #sibling_inferred_interolog_set = source_experimental_interaction.predictedproteininteraction_set.all()
+        #for sibling_inferred_interolog in sibling_inferred_interolog_set:
+        #    sibling_inferred_interolog_list.append(sibling_inferred_interolog)
+    predicted_complex_list = []
+    predicted_complex_set = inferred_interolog.predictedcomplex_set.all()[:10]
+    data['complex_count'] = inferred_interolog.predictedcomplex_set.count()
+    data['load_more_complexes'] = data['complex_count'] > 10
+    for predicted_complex in predicted_complex_set:
+        predicted_complex_protein_set = predicted_complex.proteins.all()[:10]
+        predicted_complex_protein_list = list(predicted_complex_protein_set)
+        predicted_complex_list.append([predicted_complex.id, predicted_complex_protein_list, predicted_complex.size])
+    data["inferred_interolog"] = inferred_interolog
+    data["source_experimental_interaction_list"] = source_experimental_interaction_list
+    #data["sibling_inferred_interolog_list"] = sibling_inferred_interolog_list[:10]
+    data["predicted_complex_list"] = predicted_complex_list
+    return render(request, "interolog.html", data)
 
 def complex(request, predicted_complex_id):
     predicted_complex = get_object_or_404(PredictedComplex, pk=predicted_complex_id)
@@ -127,3 +188,107 @@ def get_proteins(request):
     mimetype = "application/json"
     return HttpResponse(data, content_type=mimetype)
 
+EXPERIMENTAL_INTERACTION_COLOUR = 'rgba(0,155,155,0.74)'
+SECONDARY_INTERACTION_COLOUR = 'rgba(112,212,155,0.84)'
+PREDICTED_INTERACTION_COLOUR = 'rgba(199, 74, 167, 0.84)'
+
+def get_interactions_dict(interaction_set, colour):
+    ''' 
+    helper function to get a dictionary from an interaction set
+    in order to feed the cytoscape js plotter
+    '''
+    return [
+        {'data':
+            {
+                'id':inte.id, 
+                'source':inte.first.accession, 
+                'target':inte.second.accession,
+                'c':colour
+            }
+        }
+        for inte in interaction_set
+    ]
+
+def get_complex_graph(request, complex_id):
+    predicted_complex = get_object_or_404(PredictedComplex, pk=complex_id)
+    experimental_interaction_set = predicted_complex.exp_interactions.all()
+    inferred_interolog_set = predicted_complex.pred_interactions.all()
+    protein_set = predicted_complex.proteins.all()
+    d3 = defaultdict(list)
+    nodes = [{'data':{'id':prot.accession}} for prot in protein_set]
+    edges = get_interactions_dict(inferred_interolog_set, PREDICTED_INTERACTION_COLOUR)
+
+    edges.extend(
+        get_interactions_dict(
+            experimental_interaction_set, 
+            EXPERIMENTAL_INTERACTION_COLOUR
+        )
+    )
+    d3['nodes'] = nodes
+    d3['edges'] = edges
+
+    mimetype = 'application/json'
+    return HttpResponse(json.dumps(d3), mimetype)
+
+
+def get_interologs_for_protein_set(protein_set):
+    interologs = []
+    interologs.extend(
+        list(
+            PredictedProteinInteraction.objects
+            .filter(first__in=protein_set) 
+            .filter(second__in=protein_set) 
+        )
+    )
+    return interologs
+
+def get_interactions_for_protein_set(protein_set):
+    interactions = []
+    interactions.extend(
+        list(
+            ExperimentalProteinInteraction.objects
+            .filter(first__in=protein_set) 
+            .filter(second__in=protein_set) 
+        )
+    )
+    return interactions
+
+def get_protein_graph(request, protein_accession):
+    '''
+    returns the data required to draw a graph with the requested protein as a centre
+    '''
+    data = 'fail'
+    mimetype = 'application/json'
+    logger.warning(protein_accession)
+    protein = get_object_or_404(Protein, accession=protein_accession)
+    interactions = ExperimentalProteinInteraction.objects.filter(Q(first=protein) | Q(second=protein))
+    protein_set = set()
+    accession_set = set()
+    protein_set.add(protein)
+    accession_set.add(protein.accession)
+    for interaction in interactions:
+        protein_set.add(interaction.first)
+        protein_set.add(interaction.second)
+        accession_set.add(interaction.first.accession)
+        accession_set.add(interaction.second.accession)
+        if len(protein_set) >= LIMITS["MAX_GRAPH_SIZE"]:
+            break
+
+    # if we still have space, look for more nodes.
+    remaining_nodes = LIMITS["MAX_GRAPH_SIZE"] - len(protein_set)
+    if remaining_nodes >= 1:
+        interologs = PredictedProteinInteraction.objects.filter(Q(first=protein) | Q(second=protein)).filter(quality__gte=LIMITS["MIN_QUALITY"]).order_by("quality")[:remaining_nodes]
+        for interolog in interologs:
+            protein_set.add(interolog.first)
+            protein_set.add(interolog.second)
+            accession_set.add(interolog.first.accession)
+            accession_set.add(interolog.second.accession)
+    nodes = [{'data':{'id':prot.accession}} for prot in protein_set]
+    secondary_interactions = get_interactions_for_protein_set(protein_set)
+    secondary_interologs = get_interologs_for_protein_set(protein_set)
+    #print 'we have'. len(secondary_interactions), 'secondary interactions'
+    data = defaultdict(list)
+    data['nodes'] = nodes
+    data['edges'] = get_interactions_dict(secondary_interactions, EXPERIMENTAL_INTERACTION_COLOUR)
+    data['edges'].extend(get_interactions_dict(secondary_interologs, PREDICTED_INTERACTION_COLOUR))
+    return HttpResponse(json.dumps(data), mimetype)

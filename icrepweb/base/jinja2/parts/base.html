@@ -18,7 +18,8 @@
             var HOME_URL = "{{ url('home').rstrip('/') }}";
             // this is a utility function to get urls from the javascripts... a bit of a hack
             var getUrl = function(view, id){
-                url = HOME_URL;
+                //url = HOME_URL;
+                url = "";
                 switch(view){
                     case 'protein':
                         url += "{{ url('protein', kwargs={'protein_accession': 'Z2BC19'}) }}".replace('Z2BC19', id);// the accession was selected because is outdated

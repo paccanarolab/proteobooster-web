@@ -1,0 +1,28 @@
+{% extends 'parts/base.html' %}
+
+{% block head %}
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/downloads.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div id="section-container">
+	<a class="download-button" href="{{ static('downloads_cache/interactions.tar.gz')}}">
+		<div>
+			<img src="{{ static('icons/Download.svg')}}" alt="home"><br>Experimental Interactions
+		</div>
+	</a>
+	<a class="download-button" href="{{ static('downloads_cache/interologs.tar.gz')}}">
+		<div>
+			<img src="{{ static('icons/Download.svg')}}" alt="home"><br>Inferred Interologs
+		</div>
+	</a>
+	<a class="download-button" href="{{ static('downloads_cache/complexes.tar.gz')}}">
+		<div>
+			<img src="{{ static('icons/Download.svg')}}" alt="home"><br>Predicted Complexes
+		</div>
+	</a>
+</div>
+{% endblock %}

@@ -55,6 +55,11 @@ var plotNetwork = function(data){
 
     });
 
+    cy.on("tap", "node", function(evt){
+        var node = evt.target;
+        console.log("clicked", node.id());
+        location.href = getUrl("protein", node.id());
+    });
 };
 
 

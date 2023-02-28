@@ -1,0 +1,35 @@
+
+{% extends 'parts/base.html' %}
+
+{% block head %}
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/about.css') }}">
+{% endblock %}
+
+
+{% block content %}
+<div id="section-container">
+    <div id="about-message">
+    	<span id="message-wrapper">
+    		This tool is supported by the following institutions:
+    	</span>
+    </div>
+    <div id="logos">
+	    <a id="rhul-logo" href="https://rhul.ac.uk">
+	    	<img class="about-logo" src="{{ static('images/rhul.jpg') }}" alt="Royal Holloway, University of London">
+	    </a>
+	    <a id="paccanarolab-logo" href="https://paccanarolab.org">
+	    	<img class="about-logo" src="{{ static('images/paccanarolab.png') }}" alt="PaccanaroLab">
+	    </a>
+	    <a id="cssb-link" href="https://pure.royalholloway.ac.uk/portal/en/organisations/centre-for-systems-and-synthetic-biology(ca2b01ba-4c1a-4a0b-b819-816cf1e195dd).html">
+	    	<span id="cssb-acronym">CSSB</span>
+	    	<span id="cssb-text">Centre for Systems and Synthetic Biology</span>
+	    </a>
+	    <a id="arsis-logo" href="http://arsisteam.com/">
+	    	<div id="arsis-text">Designed by</div>
+	    	<img class="about-logo" src="{{ static('images/arsis.png') }}" alt="Arsis S.A.">
+	    </a>
+	</div>
+</div>
+{% endblock %}

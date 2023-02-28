@@ -1,18 +1,24 @@
 {% extends "parts/base.html" %}
 
 {% block head %}
-        <script src="{{ static('js/spinner.js') }}"></script>
-        <script src="{{ static('js/autocomplete.js') }}"></script>
         <link rel="stylesheet" 
             type="text/css" 
-            href="{{ static('css/spinner.css') }}">
-
+            href="{{ static('css/protein.css') }}">
+        <script src="{{static('js/cytoscape.min.js')}}"></script>
+        <script src="{{static('js/cola.v3.min.js')}}"></script>
+        <script src="{{static('js/cytoscape-cola.js')}}"></script>
+        <script src="{{static('js/springy.js')}}"></script>
+        <script src="{{static('js/cytoscape-springy.js')}}"></script>
+        <script>
+            var getNetworkUrl = HOME_URL + "/api/protein/{{protein.accession}}";
+            var INCLUDE_TrEMBL = false;
+        </script>
+        <script src="{{static('js/plot_complex.js')}}"></script>
 {% endblock %}
 
 {% block content %}
 <div id="section-container">
 	<div id="title_division">
-
         {% if protein.taxon_id.taxon_id != 1 %}
             <h1>Protein: <a class="title-link" href="http://www.uniprot.org/uniprot/{{ protein.accession }}">
                 {{ protein.accession }} <i class="fa fa-external-link"></i></a></h1>
@@ -24,133 +30,128 @@
             <h1>Protein: <span class="title-link">{{ protein.accession }}</span></h1> 
             <h2>Organism: <strong>{{ protein.taxon_id.name }}</strong></h2>
         {% endif %}
-
-
+    
 	</div>
 
-    <div id="info">
-        <section id="section-interactions">
-            <h2>Experimental Interactions <i class="fa fa-question-circle" title="{{ tooltips['interaction'] }}"></i>{% if interaction_count > 1 %} (<span class="count">{{ '{:,}'.format(interaction_count) }}</span>) {% endif %}</h2>
-            {% if interaction_count > 0 %}
-            <div class="table_division">
-                <div class="scrollbar_division">
-                    <div id="interactions-container">
-                        <div class="interaction interaction-2columns">
-                            <div class="interaction-interactor">Interactor</div>
-                            <div class="interaction-interactor">Interactor</div>
-                        </div >
-                        {% for experimental_interaction in experimental_interaction_list %}
-                            <a href="{{ url( 'interaction', kwargs={'first_accession': experimental_interaction.first.accession, 'second_accession': experimental_interaction.second.accession}) }}"
-                                class="interaction interaction-2columns">
-                                <div class="interaction-interactor">{{ experimental_interaction.first.accession }} - {{ experimental_interaction.first.description }}</div>
-                                <div class="interaction-interactor">{{ experimental_interaction.second.accession }} - {{ experimental_interaction.second.description }}</div>
+    <section id="graph">
+        <div id="cy"></div>
+    </section>
+
+    <section id="protein-information">
+        <h2>Experimental Interactions <i class="fa fa-question-circle" title="{{ tooltips['interaction'] }}"></i>{% if interaction_count > 1 %} (<span class="count">{{ '{:,}'.format(interaction_count) }}</span>) {% endif %}</h2>
+        {% if interaction_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="interactions-container">
+                    <div class="interaction interaction-2columns">
+                        <div class="interaction-interactor">Interactor</div>
+                        <div class="interaction-interactor">Interactor</div>
+                    </div >
+                    {% for experimental_interaction in experimental_interaction_list %}
+                        <a href="{{ url( 'interaction', kwargs={'first_accession': experimental_interaction.first.accession, 'second_accession': experimental_interaction.second.accession}) }}"
+                            class="interaction interaction-2columns">
+                            <div class="interaction-interactor">{{ experimental_interaction.first.accession }} - {{ experimental_interaction.first.description }}</div>
+                            <div class="interaction-interactor">{{ experimental_interaction.second.accession }} - {{ experimental_interaction.second.description }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_interactions %}
+                <button id="load-more-interactions">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        NO INTERACTIONS FOUND
+        {% endif %}
+    
+        <h2>Interologs <i class="fa fa-question-circle" title="{{ tooltips['interolog'] }}"></i>{% if interolog_count > 1 %} (<span class="count">{{'{:,}'.format(interolog_count)}}</span>) {% endif %}</h2>
+        {% if interolog_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="interologs-container">
+                    <div class="interolog interolog-3columns">
+                        <div class="interolog-quality">Quality</div>
+                        <div class="interolog-interactor">Interactor</div>
+                        <div class="interolog-interactor">Interactor</div>
+                    </div>
+                    {% for inferred_interolog in inferred_interolog_list %}
+                        <a href="{{ url('interolog', kwargs={'first_accession': inferred_interolog.first.accession, 'second_accession': inferred_interolog.second.accession}) }}"
+                            class="interolog interolog-3columns">
+                            <div class="interolog-quality">{{ "%.2f"|format(inferred_interolog.quality) }}</div>
+                            <div class="interolog-interactor">{{ inferred_interolog.first.accession }} - {{ inferred_interolog.first.description }}</div>
+                            <div class="interolog-interactor">{{ inferred_interolog.second.accession }} - {{ inferred_interolog.second.description }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_interologs %}
+                <button id="load-more-interologs">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        NO INTEROLOGS FOUND
+        {% endif %}
+
+        <h2>Predicted Complexes <i class="fa fa-question-circle" title="{{ tooltips['complex'] }}"></i>{% if complex_count > 1 %}(<span class="count">{{ '{:,}'.format(complex_count) }}</span>){% endif %}</h2>
+        {% if complex_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="complexes-container">
+                    <div class="complex">
+                        <div class="complex-size">size</div>
+                        <div class="complex-proteins">Protein Accessions</div>
+                    </div>
+                    {% for predicted_complex in predicted_complex_list %}
+                        {% with predicted_complex_id=predicted_complex.0, 
+                                uniprot_accession_list=predicted_complex.1,
+                                complex_size = predicted_complex.2 %}
+                            <a href="{{ url('complex', kwargs={'predicted_complex_id':predicted_complex_id}) }}"
+                                class="complex">
+                                <div class="complex-size">{{complex_size}}</div>
+                                <div class="complex-proteins">
+                                    {% for uniprot_accession in uniprot_accession_list %}
+                                        {{ uniprot_accession.accession }}
+                                    {% endfor %}
+                                </div>
                             </a>
-                        {% endfor %}
-                    </div>
-                    {% if load_more_interactions %}
-                    <button id="load-more-interactions">Load More</button>
-                    {% endif %}
+                        {% endwith %}
+                    {% endfor %}
                 </div>
+                {% if load_more_complexes %}
+                <button id="load-more-complexes">Load More</button>
+                {% endif %}
             </div>
-            {% else %}
-            NO INTERACTIONS FOUND
-            {% endif %}
-        </section>
+        </div>
+        {% else %}
+        NO PROTEIN COMPLEX FOUND
+        {% endif %}
+    
+        <h2>GO Terms{% if goterm_count > 1 %} (<span class="count">{{'{:,}'.format(goterm_count)}}</span>){% endif %}</h2>
+        {% if goterm_count > 0 %}
 
-        <section id="interologs">
-            <h2>Interologs <i class="fa fa-question-circle" title="{{ tooltips['interolog'] }}"></i>{% if interolog_count > 1 %} (<span class="count">{{'{:,}'.format(interolog_count)}}</span>) {% endif %}</h2>
-            {% if interolog_count > 0 %}
-            <div class="table_division">
-                <div class="scrollbar_division">
-                    <div id="interologs-container">
-                        <div class="interolog interolog-3columns">
-                            <div class="interolog-quality">Quality</div>
-                            <div class="interolog-interactor">Interactor</div>
-                            <div class="interolog-interactor">Interactor</div>
-                        </div>
-                        {% for inferred_interolog in inferred_interolog_list %}
-                            <a href="{{ url('interolog', kwargs={'first_accession': inferred_interolog.first.accession, 'second_accession': inferred_interolog.second.accession}) }}"
-                                class="interolog interolog-3columns">
-                                <div class="interolog-quality">{{ "%.2f"|format(inferred_interolog.quality) }}</div>
-                                <div class="interolog-interactor">{{ inferred_interolog.first.accession }} - {{ inferred_interolog.first.description }}</div>
-                                <div class="interolog-interactor">{{ inferred_interolog.second.accession }} - {{ inferred_interolog.second.description }}</div>
-                            </a>
-                        {% endfor %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="goterms-container">
+                    <div class="goterm goterm-2columns">
+                        <div class="goterm-identifier">Identifier</div>
+                        <div class="goterm-function">Function</div>
                     </div>
-                    {% if load_more_interologs %}
-                    <button id="load-more-interologs">Load More</button>
-                    {% endif %}
+                    {% for go_term in go_term_list %}
+                        <a href="{{ url('go_term', kwargs={'go_term_goid': 'GO:{0:07d}'.format(go_term.go_id)}) }}"
+                            class="goterm goterm-2columns">
+                            <div class="goterm-identifier">{{ "GO:{0:07d}".format(go_term.go_id) }}</div>
+                            <div class="goterm-function">{{ go_term.function }}</div>
+                        </a>
+                    {% endfor %}
                 </div>
+                {% if load_more_goterms %}
+                <button id="load-more-goterms">Load More</button>
+                {% endif %}
             </div>
-            {% else %}
-            NO INTEROLOGS FOUND
-            {% endif %}
-        </section>
-
-        <section id="complexes">
-            <h2>Predicted Complexes <i class="fa fa-question-circle" title="{{ tooltips['complex'] }}"></i>{% if complex_count > 1 %}(<span class="count">{{ '{:,}'.format(complex_count) }}</span>){% endif %}</h2>
-            {% if complex_count > 0 %}
-            <div class="table_division">
-                <div class="scrollbar_division">
-                    <div id="complexes-container">
-                        <div class="complex">
-                            <div class="complex-size">size</div>
-                            <div class="complex-proteins">Protein Accessions</div>
-                        </div>
-                        {% for predicted_complex in predicted_complex_list %}
-                            {% with predicted_complex_id=predicted_complex.0, 
-                                    uniprot_accession_list=predicted_complex.1,
-                                    complex_size = predicted_complex.2 %}
-                                <a href="{{ url('complex', kwargs={'predicted_complex_id':predicted_complex_id}) }}"
-                                    class="complex">
-                                    <div class="complex-size">{{complex_size}}</div>
-                                    <div class="complex-proteins">
-                                        {% for uniprot_accession in uniprot_accession_list %}
-                                            {{ uniprot_accession.accession }}
-                                        {% endfor %}
-                                    </div>
-                                </a>
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-                    {% if load_more_complexes %}
-                    <button id="load-more-complexes">Load More</button>
-                    {% endif %}
-                </div>
-            </div>
-            {% else %}
-            NO PROTEIN COMPLEX FOUND
-            {% endif %}
-        </section>
-
-        <section id="goterms">
-            <h2>GO Terms{% if goterm_count > 1 %} (<span class="count">{{'{:,}'.format(goterm_count)}}</span>){% endif %}</h2>
-            {% if goterm_count > 0 %}
-
-            <div class="table_division">
-                <div class="scrollbar_division">
-                    <div id="goterms-container">
-                        <div class="goterm goterm-2columns">
-                            <div class="goterm-identifier">Identifier</div>
-                            <div class="goterm-function">Function</div>
-                        </div>
-                        {% for go_term in go_term_list %}
-                            <a href="{{ url('go_term', kwargs={'go_term_goid': 'GO:{0:07d}'.format(go_term.go_id)}) }}"
-                                class="goterm goterm-2columns">
-                                <div class="goterm-identifier">{{ "GO:{0:07d}".format(go_term.go_id) }}</div>
-                                <div class="goterm-function">{{ go_term.function }}</div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                    {% if load_more_goterms %}
-                    <button id="load-more-goterms">Load More</button>
-                    {% endif %}
-                </div>
-            </div>
-            {% else %}
-            NO GO TERMS FOUND
-            {% endif %}
-        </section>
-    </div>
+        </div>
+        {% else %}
+        NO GO TERMS FOUND
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

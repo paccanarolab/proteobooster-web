@@ -1,1 +1,1 @@
-{"version":3,"sourceRoot":"","sources":["../scss/protein.scss"],"names":[],"mappings":"AACA;EACI;EACA;EACA;EACA,qBACI;;;AAIR;EACI;EACA,kBAZuB;EAavB;;AACA;EACI;EACA;;;AAIR;EAKI;;AAJA;EACI;EACA;;;AAIR;EACI;;;AAGJ;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA","file":"protein.css"}
+{"version":3,"sourceRoot":"","sources":["../scss/protein.scss"],"names":[],"mappings":"AAAA;EACI;EACA;EACA;EACA,qBACI;;;AAKR;EAKI;;AAJA;EACI;EACA;;;AAIR;EACI;;;AAEJ;EACI;EACA;EACA;;;AAGJ;EACI;;;AAGJ;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA","file":"protein.css"}

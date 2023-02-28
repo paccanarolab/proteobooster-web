@@ -484,10 +484,6 @@ section > h2 {
   border-bottom: 1.5px solid #28ADB4;
 }
 
-#section-container section {
-  margin-top: 150px;
-}
-
 @font-face {
   font-family: "Roboto";
   src: url("../fonts/Roboto-Regular.ttf") format("truetype");
