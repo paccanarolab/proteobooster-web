@@ -30,7 +30,11 @@ var EXP_INTERACTION_SUCCESS = function(data, stat, xhr){
     removeButtonIfNotRelevant('interactions', data);
 };
 var EXP_INTERACTION_ERROR = function(xhr, stat, err){};
-var GO_TERM_SUCCESS = function(data, stat, xhr){};
+var GO_TERM_SUCCESS = function(data, stat, xhr){
+    addGOTerms('#goterms-container', data);
+    go_term_offset += data.length;
+    removeButtonIfNotRelevant('goterms', data);
+};
 var GO_TERM_ERROR = function(xhr, stat, err){};
 
 $(document).ready(function(){

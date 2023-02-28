@@ -10,6 +10,44 @@
 {% endblock %}
 
 {% block content %}
+    <section id="instance-profile">
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">Main organism</th>
+                    <th colspan="2">Source</th>
+                </tr>
+            </thead>
+            <tr>
+                <td><span class="profile-title">Organism: </span></td>
+                <td><a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}">{{ organism.name }} <i class="fa fa-link"></i></a></td>
+                <td><span class="profile-title">Source organisms: </span></td>
+                <td>{{ count_organisms }} </td>
+            </tr>
+            <tr>
+                <td><span class="profile-title">Proteins: </span></td>
+                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':organism.taxon_id}) }}">{{ count_proteins }} <i class="fa fa-link"></i></a></td>
+                <td><span class="profile-title">Source Proteins: </span></td>
+                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':0}) }}">{{ count_source_proteins }} <i class="fa fa-link"></i></a></td>
+            </tr>
+            <tr>
+                <td><span class="profile-title">Interactions: </span></td>
+                <td>{{ count_interactions }} </td>
+                <td><span class="profile-title">Source Interactions: </span></td>
+                <td>{{ count_source_interactions }} </td>
+            </tr>
+            <tr>
+                <td><span class="profile-title">Interologs: </span></td>
+                <td>{{ count_interologs }} </td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td><span class="profile-title">Complexes: </span></td>
+                <td>{{ count_complexes }} </td>
+                <td colspan="2"></td>
+            </tr>
+        </table>
+    </section>
     <section id="protein-search">
         <form action="." method="post">
             {{ csrf_input }}
@@ -19,8 +57,7 @@
                         class="text_field protein-search" 
                         name="protein_accession" 
                         type="text" 
-                        placeholder="Protein Accession (Soltu.DM.)"
-                        >
+                        placeholder="Protein Accession (Soltu.DM.01G007030.1)" >
                 </div>
                 {#<i id="search-button" class="fa fa-search fa-3x" aria-hidden="true"></i>#}
                 <button id="search-button"

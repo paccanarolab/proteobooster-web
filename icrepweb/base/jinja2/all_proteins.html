@@ -1,0 +1,56 @@
+{% extends "parts/base.html" %}
+
+{% block head %}
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/inferred_interolog.css') }}">
+        <script>
+            // Load more API configuration
+            var CURR_ELEMENT_ID = {{organism.id}};
+            var INCLUDE_TrEMBL = false;
+        </script>
+        <script src="{{static('js/add_elements.js')}}"></script>
+        <script src="{{static('js/load_more_protein_items.js')}}"></script>
+        <script src="{{static('js/load_more.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="section-container">
+	<div id="title_division">
+        <h1>Proteins</h1>
+        {% if organism_name == "all" %}
+            <h2>All organisms</h2>
+        {% else %}
+            <h2>Organism: {{ organism.name }}</h2>
+        {% endif %}
+    </div>
+
+    <section id="protein_items">
+        <div class="table_division">
+            <h2> </h2>
+            <div class="scrollbar_division">
+                <div id="protein_info-container">
+                    <div class="protein_item">
+                        <div class="protein_item protein_item-3columns">
+                            <div class="protein_item-accession">Accession</div>
+                            <div class="protein_item-entry_name">Name</div>
+                            <div class="protein_item-description">Description</div>
+                        </div>
+                    </div>
+                    {% for protein in proteins %}
+                        <a href="{{ url('protein', kwargs={'protein_accession': protein.accession}) }}"
+                            class="protein_item protein_item-3columns">
+                            <div class="protein_item-accession">{{ protein.accession }}</div>
+                            <div class="protein_item-entry_name">{{ protein.entry_name }}</div>
+                            <div class="protein_item-description">{{ protein.description }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_proteins %}
+                    <button id="load-more-protein-items">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+    <section>
+</div>
+{% endblock %}

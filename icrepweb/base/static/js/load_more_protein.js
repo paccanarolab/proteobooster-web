@@ -18,6 +18,12 @@ var PROTEIN_SUCCESS = function(data, stat, xhr){
     removeButtonIfNotRelevant('proteins', data);
 };
 var PROTEIN_ERROR = function(xhr, stat, err){};
+var PROTEIN_3_COLS_SUCCESS = function(data, stat, xhr){
+    addProteinItems("#protein_info-container", data);
+    protein_offset += data.length;
+    removeButtonIfNotRelevant('protein-items', data);
+}
+var PROTEIN_3_COLS_ERROR = function(xhr, stat, err){};
 var EXP_INTERACTION_SUCCESS = function(data, stat, xhr){
     addExperimentalInteractions('#interactions-container', data);
     exp_interaction_offset += data.length;

@@ -264,6 +264,71 @@ img.nav-icon{
     }
 }
 
+/*============================== protein_items ==============================*/
+
+
+$protein_item-colour-title: rgb(173 161 75);
+$protein_item-colour-even: Gold;
+$protein_item-colour-odd: rgb(255 220 123);
+$protein_item-colour-hover: Yellow;
+
+.protein_item{
+    display:grid;
+    //grid-template-columns:1fr 2fr 2fr;
+    //grid-template-rows:100%;
+    font-family:'Roboto';
+    //float:left;
+    padding:0.5px;
+    &:nth-child(even) .protein_item-accession,
+    &:nth-child(even) .protein_item-entry_name,
+    &:nth-child(even) .protein_item-description
+    {
+        background:$protein_item-colour-even;
+    }
+    &:nth-child(odd) .protein_item-accession,
+    &:nth-child(odd) .protein_item-entry_name,
+    &:nth-child(odd) .protein_item-description{
+        background:$protein_item-colour-odd;
+    }
+
+
+    &:hover .protein_item-accession,
+    &:hover .protein_item-entry_name,
+    &:hover .protein_item-description
+    {
+        background: $protein_item-colour-hover;
+    }
+
+    &:nth-child(1) .protein_item-accession,
+    &:nth-child(1) .protein_item-entry_name,
+    &:nth-child(1) .protein_item-description
+    {
+        background:$protein_item-colour-title !important;
+        color: white;
+        //font-weight: bold;
+    }
+
+}
+
+.protein_item-3columns{
+    grid-template-columns:1fr 2fr 5fr;
+}
+
+.protein_item-4columns{
+    grid-template-columns:2fr 1fr 4fr 4fr;
+    
+}
+
+.protein_item-accession{
+    padding: 0 5px;
+}
+.protein_item-entry_name{
+    padding: 0 5px;
+}
+.protein_item-description{
+    padding: 0 5px;
+}
+
 /*============================== interologs ==============================*/
 
 $interolog-colour-title: rgba(199, 74, 167,1);

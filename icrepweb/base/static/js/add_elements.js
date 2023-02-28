@@ -66,6 +66,19 @@ var addComplexes = function(containerSelector, data, includeScore = false){
     });
 };
 
+var addProteinItems = function(containerSelector, data){
+    $.each(data, function(i, item){
+        $(containerSelector).append(
+            `<a href="${getUrl('protein', item.accession)}"
+                class="protein_item protein_item-3columns">
+                <div class="protein_item-accession">${item.accession}</div>
+                <div class="protein_item-entry_name">${item.entry_name}</div>
+                <div class="protein_item-description">${item.description}</div>
+            </a>
+            `);
+    });
+};
+
 var addProteins = function(containerSelector, data){
     $.each(data, function(i, item){
         $(containerSelector).append(

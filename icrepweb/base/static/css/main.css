@@ -210,6 +210,46 @@ img.nav-icon{
   background: yellow;
 }
 
+/*============================== protein_items ==============================*/
+.protein_item {
+  display: grid;
+  font-family: "Roboto";
+  padding: 0.5px;
+}
+.protein_item:nth-child(even) .protein_item-accession, .protein_item:nth-child(even) .protein_item-entry_name, .protein_item:nth-child(even) .protein_item-description {
+  background: Gold;
+}
+.protein_item:nth-child(odd) .protein_item-accession, .protein_item:nth-child(odd) .protein_item-entry_name, .protein_item:nth-child(odd) .protein_item-description {
+  background: rgb(255, 220, 123);
+}
+.protein_item:hover .protein_item-accession, .protein_item:hover .protein_item-entry_name, .protein_item:hover .protein_item-description {
+  background: Yellow;
+}
+.protein_item:nth-child(1) .protein_item-accession, .protein_item:nth-child(1) .protein_item-entry_name, .protein_item:nth-child(1) .protein_item-description {
+  background: rgb(173, 161, 75) !important;
+  color: white;
+}
+
+.protein_item-3columns {
+  grid-template-columns: 1fr 2fr 5fr;
+}
+
+.protein_item-4columns {
+  grid-template-columns: 2fr 1fr 4fr 4fr;
+}
+
+.protein_item-accession {
+  padding: 0 5px;
+}
+
+.protein_item-entry_name {
+  padding: 0 5px;
+}
+
+.protein_item-description {
+  padding: 0 5px;
+}
+
 /*============================== interologs ==============================*/
 .interolog {
   display: grid;

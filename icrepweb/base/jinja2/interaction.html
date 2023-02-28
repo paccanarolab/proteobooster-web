@@ -1,0 +1,168 @@
+{% extends 'parts/base.html'%}
+
+{% block head %}
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/exp_interaction.css') }}">
+        <script>
+            // Load more API configuration
+            var CURR_ELEMENT_ID = {{experimental_interaction.id}};
+            INCLUDE_TrEMBL = false;
+        </script>
+        <script src="{{static('js/add_elements.js')}}"></script>
+        <script src="{{static('js/load_more_interaction.js')}}"></script>
+        <script src="{{static('js/load_more.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="section-container">
+
+	<div id="title_division">
+		<h1>Experimental Interaction</h1>
+		<h2>
+            <a href="{{ url('organism', kwargs={'organism_taxon_id': experimental_interaction.taxon_id.taxon_id}) }}">{{ experimental_interaction.taxon_id.name }} <i class="fa fa-link"></i></a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="title-link" href="{{ url('protein', kwargs={'protein_accession':  experimental_interaction.first.accession}) }}">{{ experimental_interaction.first.accession }} <i class="fa fa-link"></i></a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="title-link" href="{{ url('protein', kwargs={'protein_accession':  experimental_interaction.second.accession}) }}">{{ experimental_interaction.second.accession }} <i class="fa fa-link"></i></a>
+		</h2>
+	</div>
+
+    <section id="evidence">
+        <h2>Evidence <i class="fa fa-question-circle" title="{{ tooltips['evidence'] }}"></i>{% if evidence_count > 1 %} (<span class="count">{{ '{:,}'.format(evidence_count) }}</span>) {% endif %}</h2>
+        {% if evidence_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="evidence-container">
+                    <div class="evidence">
+                        <div class="evidence-pubmed_id">PubMed Identifier</div>
+                        <div class="evidence-interaction_type">Type of Interaction</div>
+                        <div class="evidence-detection_method">Interaction Method</div>
+                    </div>
+                    {% for evidence in evidence_list %}
+                        <div class="evidence">
+                            <a href="http://www.ncbi.nlm.nih.gov/pubmed/{{ evidence.pubmed_id }}" target="_blank">
+                                <div class="evidence-pubmed_id">{{ evidence.pubmed_id }} <i class="fa fa-external-link"></i></div>
+                            </a>
+                            <a href="http://purl.obolibrary.org/obo/{{ evidence.interaction_type.mi_id.replace(":", "_") }}" target="_blank">
+                                <div class="evidence-interaction_type">{{ evidence.interaction_type.mi_id }} - {{ evidence.interaction_type.description }} <i class="fa fa-external-link"></i></div>
+                            </a>
+                            <a href="http://purl.obolibrary.org/obo/{{ evidence.detection_method.mi_id.replace(":","_") }}" target="_blank">
+                                <div class="evidence-detection_method">{{ evidence.detection_method.mi_id }} - {{ evidence.detection_method.description }} <i class="fa fa-external-link"></i></div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if load_more_evidence %}
+                <button id="load-more-evidence">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+            NO EVIDENCE FOUND
+        {% endif %}
+    </section>
+
+    <section id="interologs">
+        <h2>Interologs derived from this interaction <i class="fa fa-question-circle" title="{{ tooltips['interolog'] }}"></i>{% if interolog_count > 1 %} (<span class="count">{{ '{:,}'.format(interolog_count) }}</span>){% endif %}</h2>
+        {% if interolog_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="interologs-container">
+                    <div class="interolog interolog-4columns">
+                        <div class="interolog-name">Organism</div>
+                        <div class="interolog-quality">Quality</div>
+                        <div class="interolog-interactor">Interactor</div>
+                        <div class="interolog-interactor">Interactor</div>
+                        {#<div class="interolog-interactor">First Homology</div>
+                        <div class="interolog-interactor">Second Homology</div>#}
+                    </div>
+                    {% for inferred_interolog in inferred_interolog_list %}
+                        <a href="{{ url('interolog', kwargs={'first_accession': inferred_interolog.first.accession, 'second_accession':inferred_interolog.second.accession}) }}" 
+                            class="interolog interolog-4columns">
+                            <div class="interolog-name">{{ inferred_interolog.taxon_id.name }}</div>
+                            <div class="interolog-quality">{{ "%.2f"|format(inferred_interolog.quality) }}</div>
+                            <div class="interolog-interactor">{{ inferred_interolog.first.accession }} - {{ inferred_interolog.first.description }}</div>
+                            <div class="interolog-interactor">{{ inferred_interolog.second.accession }} - {{ inferred_interolog.second.description }}</div>
+                            {#<div class="interolog-interactor">{{ inferred_interolog.first_homology.source.accession }}</div>
+                            <div class="interolog-interactor">{{ inferred_interolog.second_homology.source.accession }}</div>#}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_interologs %}
+                <button id="load-more-interologs">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        NO INTEROLOGS WERE FOUND
+        {% endif %}
+    </section>
+
+    <section id="interactions">
+        <h2>Sibling Experimental Interactions <i class="fa fa-question-circle" title="{{ tooltips['sibling-interaction'] }}"></i>{% if sibling_interaction_count > 1 %} (<span class="count">{{ '{:,}'.format(sibling_interaction_count) }}</span>){% endif %}</h2>
+        {% if sibling_interaction_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="interactions-container">
+                    <div class="interaction interaction-3columns">
+                        <div class="interaction-name">Organism</div>
+                        <div class="interaction-interactor">Interactor</div>
+                        <div class="interaction-interactor">Interactor</div>
+                    </div>
+                    {% for sibling_experimental_interaction in sibling_experimental_interaction_list %}
+                        <a href="{{ url('interaction', kwargs={'first_accession':sibling_experimental_interaction.first.accession, 'second_accession':sibling_experimental_interaction.second.accession}) }}"
+                            class="interaction interaction-3columns">
+                            <div class="interaction-name">{{ sibling_experimental_interaction.taxon_id.name }}</div>
+                            <div class="interaction-interactor">{{ sibling_experimental_interaction.first.accession }} - {{ sibling_experimental_interaction.first.description }}</div>
+                            <div class="interaction-interactor">{{ sibling_experimental_interaction.second.accession }} - {{ sibling_experimental_interaction.second.description }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_interactions %}
+                <button id="load-more-interactions">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        NO SIBLING INTERACTIONS WERE FOUND
+        {% endif %}
+    </section>
+
+    <section id="complexes">
+        <h2>Predicted Complexes <i class="fa fa-question-circle" title="{{ tooltips['complex'] }}"></i> {% if complex_count > 1 %}(<span class="count">{{ '{:,}'.format(complex_count) }}</span>){% endif %}</h2>
+        {% if complex_count > 0 %}
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="complexes-container">
+                    <div class="complex">
+                        <div class="complex-size">Size</div>
+                        <div class="complex-proteins">UniProt Accessions</div>
+                    </div>
+                    {% for predicted_complex in predicted_complex_list %}
+                        {% with predicted_complex_id=predicted_complex.0, 
+                                uniprot_accession_list=predicted_complex.1,
+                                complex_size=predicted_complex.2 %}
+                            <a href="{{ url('complex', kwargs={'predicted_complex_id': predicted_complex_id}) }}"
+                                class="complex">
+                                <div class="complex-size">{{complex_size}}</div>
+                                <div class="complex-proteins">
+                                    {% for uniprot_accession in uniprot_accession_list %}
+                                        {{ uniprot_accession }}
+                                    {% endfor %}
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+                {% if load_more_complexes %}
+                <button id="load-more-complexes">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        NO PROTEIN COMPLEX FOUND
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

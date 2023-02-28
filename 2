@@ -28,7 +28,6 @@ var LOAD_MORE_LIMIT = 40;
 var complex_offset;
 var interolog_offset;
 var protein_offset;
-var protein_item_offset;
 var exp_interaction_offset;
 var go_term_offset;
 
@@ -86,12 +85,12 @@ $(document).ready(function(){
             INTEROLOG_ERROR
         ); 
     });
-    $(document).on('click', '#load-more-protein-items', function(){
+    $(document).on('click', '#load-more-proteins-3-columns', function(){
         loadMore(
             HOME_URL + '/api/lm/protein/',
             {
                 filter:CURR_FILTER,
-                offset:protein_item_offset,
+                offset:protein_offset,
                 limit:LOAD_MORE_LIMIT,
                 element_id:CURR_ELEMENT_ID,
                 include_trembl:INCLUDE_TrEMBL
