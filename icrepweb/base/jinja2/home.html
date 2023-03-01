@@ -22,7 +22,7 @@
                 <td><span class="profile-title">Organism: </span></td>
                 <td><a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}">{{ organism.name }} <i class="fa fa-link"></i></a></td>
                 <td><span class="profile-title">Source organisms: </span></td>
-                <td>{{ count_organisms }} </td>
+                <td><a href="{{ url('organisms') }}">{{ count_organisms }} <i class="fa fa-link"></i></a></td>
             </tr>
             <tr>
                 <td><span class="profile-title">Proteins: </span></td>

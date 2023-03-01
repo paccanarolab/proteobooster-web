@@ -10,6 +10,7 @@ urlpatterns = [
     path("downloads/organism/<int:organism_taxon_id>/interologs/", views.organism_download_interologs, name='organism_download_interologs'),
     path("downloads/organism/<int:organism_taxon_id>/complexes/", views.organism_download_complexes, name='organism_download_complexes'),
     path("organism/<int:organism_taxon_id>/", views.organism, name="organism"),
+    path("organism/all/", views.organisms, name="organisms"),
     path("protein/<str:protein_accession>/", views.protein, name="protein"),
     path("proteins/<int:organism_taxon_id>", views.proteins, name="all_proteins"),
     path("interaction/<str:first_accession>/<str:second_accession>/", views.interaction, name="interaction"),

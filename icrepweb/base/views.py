@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django import forms
-from django.db.models import Q
+from django.db.models import Q, Count
 from .models import Organism, Protein, ExperimentalProteinInteraction, PredictedProteinInteraction, PredictedComplex
 import json
 import logging
@@ -271,7 +271,11 @@ def organism(request, organism_taxon_id):
 
     return render(request, "organism.html", data)
 
-
+def organisms(request):
+    context = {}
+    context["organisms"] = Organism.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).annotate(num_proteins=Count('protein')).order_by("-num_proteins").all()
+    context["domain_dict"] = {k: v for k,v in Organism.DOMAINS}
+    return render(request, "all_organisms.html", context)
 
 
 def interaction(request, first_accession, second_accession):

@@ -1,0 +1,51 @@
+{% extends "parts/base.html" %}
+
+{% block head %}
+        <link rel="stylesheet" 
+            type="text/css" 
+            href="{{ static('css/organism.css') }}">
+        <script>
+            // Load more API configuration
+            var INCLUDE_TrEMBL = false;
+        </script>
+{% endblock %}
+
+{% block content %}
+<div id="section-container">
+	<div id="title_division">
+        <h1>Source Organisms</h1>
+    </div>
+
+    <section id="protein_items">
+        <div class="table_division">
+            <h2> </h2>
+            <div class="scrollbar_division">
+                <div id="organism-container">
+                    <div class="organism">
+                        <div class="organism organism-5columns">
+                            <div class="organism-taxon_id">Tax ID</div>
+                            <div class="organism-name">Name</div>
+                            <div class="organism-name"># proteins</div>
+                            <div class="organism-name"># interactions</div>
+                            <div class="organism-domain">Domain</div>
+                        </div>
+                    </div>
+                    {% for organism in organisms %}
+                        <a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}"
+                            class="organism organism-5columns">
+                            <div class="organism-taxon_id">{{ organism.taxon_id }}</div>
+                            <div class="organism-name">{{ organism.name }}</div>
+                            <div class="organism-count">{{organism.protein_set.count()}}</div>
+                            <div class="organism-count">{{organism.experimentalproteininteraction_set.count()}}</div>
+                            <div class="organism-domain">{{ domain_dict[organism.domain] }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_proteins %}
+                    <button id="load-more-protein-items">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+    <section>
+</div>
+{% endblock %}

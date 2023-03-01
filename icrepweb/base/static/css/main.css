@@ -170,6 +170,7 @@ img.nav-icon{
 #load-more-interologs,
 #load-more-interactions,
 #load-more-proteins,
+#load-more-protein-items,
 #load-more-complexes,
 #load-more-evidence,
 #load-more-goterms {
@@ -187,6 +188,7 @@ img.nav-icon{
 #load-more-interologs:hover,
 #load-more-interactions:hover,
 #load-more-proteins:hover,
+#load-more-protein-items:hover,
 #load-more-complexes:hover,
 #load-more-evidence:hover,
 #load-more-goterms:hover {
@@ -250,6 +252,63 @@ img.nav-icon{
   padding: 0 5px;
 }
 
+/*============================== organism ==============================*/
+.organism {
+  display: grid;
+  font-family: "Roboto";
+  padding: 0.5px;
+}
+.organism:nth-child(even) .organism-taxon_id, .organism:nth-child(even) .organism-domain, .organism:nth-child(even) .organism-name, .organism:nth-child(even) .organism-count {
+  background: rgb(156, 208, 239);
+}
+.organism:nth-child(odd) .organism-taxon_id, .organism:nth-child(odd) .organism-domain, .organism:nth-child(odd) .organism-name, .organism:nth-child(odd) .organism-count {
+  background: rgb(111, 167, 200);
+}
+.organism:hover .organism-taxon_id, .organism:hover .organism-domain, .organism:hover .organism-name, .organism:hover .organism-count {
+  background: rgb(197, 233, 255);
+}
+.organism:nth-child(1) .organism-taxon_id, .organism:nth-child(1) .organism-domain, .organism:nth-child(1) .organism-name, .organism:nth-child(1) .organism-count {
+  background: rgb(69, 138, 181) !important;
+  color: white;
+}
+
+.organism-3columns {
+  grid-template-columns: 1fr 7fr 1fr;
+}
+
+.organism-4columns {
+  grid-template-columns: 2fr 1fr 4fr 4fr;
+}
+
+.organism-5columns {
+  grid-template-columns: 1fr 5fr 1fr 1fr 1fr;
+}
+
+.organism-domain {
+  padding: 0 5px;
+}
+
+.organism-taxon_id {
+  padding: 0 5px;
+}
+
+.organism-name {
+  padding: 0 5px;
+}
+
+.organism-count {
+  padding: 0 15px;
+  text-align: right;
+}
+
+/*.organism:hover .organism-taxon_id,
+.organism:hover .organism-domain,
+.organism:hover .organism-name,
+.organism-4columns:hover .organism-taxon_id,
+.organism-4columns:hover .organism-domain,
+.organism-4columns:hover .organism-name{
+    background: $organism-colour-hover;
+}*/
 /*============================== interologs ==============================*/
 .interolog {
   display: grid;
