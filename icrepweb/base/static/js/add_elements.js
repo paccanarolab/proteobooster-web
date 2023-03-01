@@ -104,6 +104,7 @@ var addGOTerms = function(containerSelector, data){
 
 var removeButtonIfNotRelevant = function(element, data){
     var id = '#load-more-' + element;
+    console.log(data, LOAD_MORE_LIMIT);
     if(data.length < LOAD_MORE_LIMIT){
         $(id).remove();
     }

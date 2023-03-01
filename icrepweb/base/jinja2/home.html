@@ -22,28 +22,28 @@
                 <td><span class="profile-title">Organism: </span></td>
                 <td><a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}">{{ organism.name }} <i class="fa fa-link"></i></a></td>
                 <td><span class="profile-title">Source organisms: </span></td>
-                <td><a href="{{ url('organisms') }}">{{ count_organisms }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('organisms') }}">{{ '{:,}'.format(count_organisms) }} <i class="fa fa-link"></i></a></td>
             </tr>
             <tr>
                 <td><span class="profile-title">Proteins: </span></td>
-                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':organism.taxon_id}) }}">{{ count_proteins }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':organism.taxon_id}) }}">{{ '{:,}'.format(count_proteins) }} <i class="fa fa-link"></i></a></td>
                 <td><span class="profile-title">Source Proteins: </span></td>
-                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':0}) }}">{{ count_source_proteins }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':0}) }}">{{ '{:,}'.format(count_source_proteins) }} <i class="fa fa-link"></i></a></td>
             </tr>
             <tr>
                 <td><span class="profile-title">Interactions: </span></td>
-                <td>{{ count_interactions }} </td>
+                <td>{{ '{:,}'.format(count_interactions) }} </td>
                 <td><span class="profile-title">Source Interactions: </span></td>
-                <td>{{ count_source_interactions }} </td>
+                <td>{{ '{:,}'.format(count_source_interactions) }} </td>
             </tr>
             <tr>
                 <td><span class="profile-title">Interologs: </span></td>
-                <td>{{ count_interologs }} </td>
+                <td>{{ '{:,}'.format(count_interologs) }} </td>
                 <td colspan="2"></td>
             </tr>
             <tr>
                 <td><span class="profile-title">Complexes: </span></td>
-                <td>{{ count_complexes }} </td>
+                <td><a href="{{ url('complexes') }}">{{ '{:,}'.format(count_complexes) }} <i class="fa fa-link"></i></a></td>
                 <td colspan="2"></td>
             </tr>
         </table>

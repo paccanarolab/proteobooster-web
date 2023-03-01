@@ -19,17 +19,7 @@
 {% block content %}
 <div id="section-container">
 	<div id="title_division">
-		<div>
-			<h1>Predicted Complex</h1>
-			<div>
-				{% for protein in protein_list %}
-					<a href="{{ url('protein', kwargs={'protein_accession':  protein.accession}) }}"
-                        class="protein">
-                            {{ protein.accession }}
-                    </a>
-				{% endfor %}
-			</div>
-		</div>
+        <h1>Predicted Complex</h1>
     </div>
 
     <section id="graph">
@@ -38,6 +28,32 @@
 
     <section id="complex-information">
 
+        <h2>Proteins (<span class="count">{{'{:,}'.format(protein_list | length)}}</span>)</h2>
+        <div class="table_division">
+            <div class="scrollbar_division">
+                <div id="protein_info-container">
+                    <div class="protein_item">
+                        <div class="protein_item protein_item-3columns">
+                            <div class="protein_item-accession">Accession</div>
+                            <div class="protein_item-entry_name">Name</div>
+                            <div class="protein_item-description">Description</div>
+                        </div>
+                    </div>
+                    {% for protein in protein_list %}
+                        <a href="{{ url('protein', kwargs={'protein_accession': protein.accession}) }}"
+                            class="protein_item protein_item-3columns">
+                            <div class="protein_item-accession">{{ protein.accession }}</div>
+                            <div class="protein_item-entry_name">{{ protein.entry_name }}</div>
+                            <div class="protein_item-description">{{ protein.description }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% if load_more_proteins %}
+                    <button id="load-more-protein-items">Load More</button>
+                {% endif %}
+            </div>
+        </div>
+        
         {% if experimental_interaction_list is defined %}
             <h2>Experimental Interactions</h2>
             {% if interaction_count > 0 %}

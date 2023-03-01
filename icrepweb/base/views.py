@@ -12,6 +12,11 @@ LIMITS = {
     "MAX_GRAPH_SIZE":20,
     "MIN_QUALITY":95,
     "MAX_ITEMS_LOAD": 80,
+    "COMPLEX_MAX_SIZE": 100,
+}
+
+DEFAULTS = {
+    "include_trembl": True
 }
 
 INSTANCE_ORG_TAX_ID = 1
@@ -36,7 +41,7 @@ class HomePageForm(forms.Form):
 
 def home(request):
     context = {}
-    context["count_complexes"] = PredictedComplex.objects.count()
+    context["count_complexes"] = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"]).count()
     context["count_proteins"] = Protein.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID).count()
     context["count_interactions"] = ExperimentalProteinInteraction.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID).count()
     context["count_interologs"] = PredictedProteinInteraction.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID).count()
@@ -73,13 +78,14 @@ def about(request):
 def proteins(request, organism_taxon_id):
     n = LIMITS["MAX_ITEMS_LOAD"] 
     context = {}
+    context["defaults"] = DEFAULTS
     if organism_taxon_id == 0:
         context["organism"] = "all"
         context["proteins"] = Protein.objects.all()[:n]
         context["load_more_proteins"] = Protein.objects.all().count() > n
     else:
         organism = get_object_or_404(Organism, taxon_id=organism_taxon_id)
-        context["organism"] = organism.name
+        context["organism"] = organism
         context["proteins"] = Protein.objects.filter(taxon_id=organism).all()[:n]
         context["load_more_proteins"] = Protein.objects.filter(taxon_id=organism).all().count() > n
     context["taxon_id"] = organism_taxon_id
@@ -100,8 +106,8 @@ def protein(request, protein_accession):
     context['load_more_interologs'] = context['interolog_count'] > 10
 
     predicted_complex_list = []
-    predicted_complex_set = protein.predictedcomplex_set.filter(size__lte=80)[:10]
-    context['complex_count'] = protein.predictedcomplex_set.filter(size__lte=80).count()
+    predicted_complex_set = protein.predictedcomplex_set.filter(size__lte=100)[:10]
+    context['complex_count'] = protein.predictedcomplex_set.filter(size__lte=100).count()
     context['load_more_complexes'] = context['complex_count'] > 10
     for predicted_complex in predicted_complex_set:
         predicted_complex_protein_set = predicted_complex.proteins.all()
@@ -399,6 +405,11 @@ def complex(request, predicted_complex_id):
     context["complex_functional_assignment_list"] = complex_functional_assignment_list
     return render(request, "predicted_complex.html", context)
 
+def complexes(request):
+    context = {}
+    context["complexes"] = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"]).order_by("-size").all()
+    return render(request, "all_complexes.html", context)
+
 def go_term(request, go_term_goid):
     return render(request, "home.html") 
 
@@ -677,7 +688,8 @@ def api_lm_protein(request):
         filt = request.GET.get('filter','')
         offset = int(request.GET.get('offset',0))
         limit = int(request.GET.get('limit',0))
-        include_trembl = request.GET.get('include_trembl','true') != 'false'
+        include_trembl = request.GET.get('include_trembl','true')
+        logger.warning(f"include trembl {include_trembl}")
         if limit > MAX_LIMIT_RANGE:
             data = 'fail: please limit your requests to ' + str(MAX_LIMIT_RANGE) + ' elements or less'
             return HttpResponse(data, mimetype)

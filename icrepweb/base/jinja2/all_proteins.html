@@ -6,8 +6,12 @@
             href="{{ static('css/inferred_interolog.css') }}">
         <script>
             // Load more API configuration
+        {% if organism == "all" %}
+            var CURR_ELEMENT_ID = 0;
+        {% else %}
             var CURR_ELEMENT_ID = {{organism.id}};
-            var INCLUDE_TrEMBL = false;
+        {% endif %}
+            var INCLUDE_TrEMBL = {{defaults["include_trembl"]|tojson}};
         </script>
         <script src="{{static('js/add_elements.js')}}"></script>
         <script src="{{static('js/load_more_protein_items.js')}}"></script>
@@ -18,7 +22,7 @@
 <div id="section-container">
 	<div id="title_division">
         <h1>Proteins</h1>
-        {% if organism_name == "all" %}
+        {% if organism == "all" %}
             <h2>All organisms</h2>
         {% else %}
             <h2>Organism: {{ organism.name }}</h2>

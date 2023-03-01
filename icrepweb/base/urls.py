@@ -16,6 +16,7 @@ urlpatterns = [
     path("interaction/<str:first_accession>/<str:second_accession>/", views.interaction, name="interaction"),
     path("interolog/<str:first_accession>/<str:second_accession>/", views.interolog, name="interolog"),
     path("complex/<int:predicted_complex_id>/", views.complex, name="complex"),
+    path("complex/all/", views.complexes, name="complexes"),
     path("go_term/<str:go_term_goid>/", views.home, name="go_term"),
     #API
     path("api/proteins", views.get_proteins, name="get_proteins"),
