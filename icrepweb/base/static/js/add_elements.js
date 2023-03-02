@@ -57,9 +57,9 @@ var addComplexes = function(containerSelector, data, includeScore = false){
     $.each(data, function(i, item){
         $(containerSelector).append(
             `<a href="${getUrl('complex', item.id)}"
-                class="complex">
-                ${includeScore? `<div class="predicted-complex-pvalue">${item.pvalue}</div>`:''}
+                class="complex ${includeScore? 'complex-3columns':''}">
                 <div class="complex-size">${item.size}</div>
+                ${includeScore? `<div class="complex-score">${item.quality}</div>`:''}
                 <div class="complex-proteins">${item.proteins.slice(0,10).join(' ')}</div>
              </a>
             `);

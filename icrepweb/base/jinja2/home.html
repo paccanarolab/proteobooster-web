@@ -6,6 +6,9 @@
         <link rel="stylesheet" 
             type="text/css" 
             href="{{ static('css/spinner.css') }}">
+        <script>
+            var INCLUDE_TrEMBL = {% if include_trembl %}true{% else %}false{% endif %};
+        </script>
 
 {% endblock %}
 
@@ -22,13 +25,13 @@
                 <td><span class="profile-title">Organism: </span></td>
                 <td><a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}">{{ organism.name }} <i class="fa fa-link"></i></a></td>
                 <td><span class="profile-title">Source organisms: </span></td>
-                <td><a href="{{ url('organisms') }}">{{ '{:,}'.format(count_organisms) }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('organisms') }}?include_trembl={{include_trembl|tojson}}">{{ '{:,}'.format(count_organisms) }} <i class="fa fa-link"></i></a></td>
             </tr>
             <tr>
                 <td><span class="profile-title">Proteins: </span></td>
-                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':organism.taxon_id}) }}">{{ '{:,}'.format(count_proteins) }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':organism.taxon_id}) }}?include_trembl={{include_trembl|tojson}}">{{ '{:,}'.format(count_proteins) }} <i class="fa fa-link"></i></a></td>
                 <td><span class="profile-title">Source Proteins: </span></td>
-                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':0}) }}">{{ '{:,}'.format(count_source_proteins) }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('all_proteins', kwargs={'organism_taxon_id':0}) }}?include_trembl={{include_trembl|tojson}}">{{ '{:,}'.format(count_source_proteins) }} <i class="fa fa-link"></i></a></td>
             </tr>
             <tr>
                 <td><span class="profile-title">Interactions: </span></td>
@@ -43,10 +46,17 @@
             </tr>
             <tr>
                 <td><span class="profile-title">Complexes: </span></td>
-                <td><a href="{{ url('complexes') }}">{{ '{:,}'.format(count_complexes) }} <i class="fa fa-link"></i></a></td>
+                <td><a href="{{ url('complexes') }}?include_trembl={{include_trembl|tojson}}">{{ '{:,}'.format(count_complexes) }} <i class="fa fa-link"></i></a></td>
                 <td colspan="2"></td>
             </tr>
         </table>
+        <div>
+            <span id="trembl-toggle">Include TrEMBL</span>
+            <label class="switch">
+                <input id="trembl-checkbox" type="checkbox" {% if include_trembl %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
     </section>
     <section id="protein-search">
         <form action="." method="post">

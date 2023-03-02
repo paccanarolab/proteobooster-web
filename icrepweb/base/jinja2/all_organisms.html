@@ -6,7 +6,7 @@
             href="{{ static('css/organism.css') }}">
         <script>
             // Load more API configuration
-            var INCLUDE_TrEMBL = false;
+            var INCLUDE_TrEMBL = {{include_trembl|tojson}};
         </script>
 {% endblock %}
 
@@ -14,6 +14,13 @@
 <div id="section-container">
 	<div id="title_division">
         <h1>Source Organisms</h1>
+        <div>
+            <span id="trembl-toggle">Include TrEMBL</span>
+            <label class="switch">
+                <input id="trembl-checkbox" type="checkbox" {% if include_trembl %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
     </div>
 
     <section id="protein_items">
@@ -31,12 +38,17 @@
                         </div>
                     </div>
                     {% for organism in organisms %}
-                        <a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}"
+                    <a href="{{ url('organism', kwargs={'organism_taxon_id': organism.taxon_id}) }}?include_trembl={{include_trembl|tojson}}"
                             class="organism organism-5columns">
                             <div class="organism-taxon_id">{{ organism.taxon_id }}</div>
                             <div class="organism-name">{{ organism.name }}</div>
-                            <div class="organism-count">{{organism.protein_set.count()}}</div>
-                            <div class="organism-count">{{organism.experimentalproteininteraction_set.count()}}</div>
+                            {% if include_trembl %}
+                                <div class="organism-count">{{organism.experimentalproteininteraction_set.count()}}</div>
+                                <div class="organism-count">{{organism.protein_set.count()}}</div>
+                            {% else %}
+                            <div class="organism-count">{{organism.experimentalproteininteraction_set.filter(first__database=0, second__database=0).count()}}</div>
+                                <div class="organism-count">{{organism.protein_set.filter(database=0).count()}}</div>
+                            {% endif %}
                             <div class="organism-domain">{{ domain_dict[organism.domain] }}</div>
                         </a>
                     {% endfor %}

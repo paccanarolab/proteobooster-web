@@ -6,14 +6,25 @@
             href="{{ static('css/organism.css') }}">
         <script>
             // Load more API configuration
-            var INCLUDE_TrEMBL = false;
+            var CURR_ELEMENT_ID = 0;
+            var INCLUDE_TrEMBL = {{include_trembl|tojson}};
         </script>
+        <script src="{{static('js/add_elements.js')}}"></script>
+        <script src="{{static('js/load_more_complex.js')}}"></script>
+        <script src="{{static('js/load_more.js')}}"></script>
 {% endblock %}
 
 {% block content %}
 <div id="section-container">
 	<div id="title_division">
         <h1>Predicted Complexes</h1>
+        <div>
+            <span id="trembl-toggle">Include TrEMBL</span>
+            <label class="switch">
+                <input id="trembl-checkbox" type="checkbox" {% if include_trembl %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
     </div>
 
     <section id="complexes">

@@ -3,15 +3,15 @@
 {% block head %}
         <link rel="stylesheet" 
             type="text/css" 
-            href="{{ static('css/inferred_interolog.css') }}">
+            href="{{ static('css/organism.css') }}">
         <script>
             // Load more API configuration
-        {% if organism == "all" %}
-            var CURR_ELEMENT_ID = 0;
-        {% else %}
-            var CURR_ELEMENT_ID = {{organism.id}};
-        {% endif %}
-            var INCLUDE_TrEMBL = {{defaults["include_trembl"]|tojson}};
+            {% if organism == "all" %}
+                var CURR_ELEMENT_ID = 0;
+            {% else %}
+                var CURR_ELEMENT_ID = {{organism.id}};
+            {% endif %}
+            var INCLUDE_TrEMBL = {{include_trembl|tojson}};
         </script>
         <script src="{{static('js/add_elements.js')}}"></script>
         <script src="{{static('js/load_more_protein_items.js')}}"></script>
@@ -21,12 +21,21 @@
 {% block content %}
 <div id="section-container">
 	<div id="title_division">
-        <h1>Proteins</h1>
+        <div>
+        <h1>Proteins ({{protein_counts}})</h1>
         {% if organism == "all" %}
             <h2>All organisms</h2>
         {% else %}
             <h2>Organism: {{ organism.name }}</h2>
         {% endif %}
+        </div>
+        <div>
+            <span id="trembl-toggle">Include TrEMBL</span>
+            <label class="switch">
+                <input id="trembl-checkbox" type="checkbox" {% if include_trembl %}checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
     </div>
 
     <section id="protein_items">
@@ -51,7 +60,7 @@
                     {% endfor %}
                 </div>
                 {% if load_more_proteins %}
-                    <button id="load-more-protein-items">Load More</button>
+                <button id="load-more-protein-items">Load More</button>
                 {% endif %}
             </div>
         </div>

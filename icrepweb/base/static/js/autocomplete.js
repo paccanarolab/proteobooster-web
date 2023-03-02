@@ -46,6 +46,7 @@ $(document).ready(function() {
                 type: 'GET',
                 data: {
                     term: request.term,
+                    include_trembl: INCLUDE_TrEMBL,
                 },
                 success: function(data) {
                     proteinCache[ term ] = data;

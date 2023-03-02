@@ -66,7 +66,8 @@
     {% if experimental_interaction_list is defined %}
     <section id="experimental-interactions">
         <h2>
-            Experimental Interactions <i class="fa fa-question-circle" title="{{ tooltips['interaction'] }}"></i>{% if interaction_count > 1 %} (<span class="count">{{ '{:,}'.format(interaction_count) }}</span>) 
+            Experimental Interactions <i class="fa fa-question-circle" title="{{ tooltips['interaction'] }}"></i> (<span class="count">{{ '{:,}'.format(interaction_count) }}</span>)
+            {% if interaction_count > 1 %} 
             <a class="export-link" 
                 href="{{ url('organism_download_interactions', kwargs={'organism_taxon_id':organism.taxon_id}) }}?include_trembl={% if include_trembl %}true{% else %}false{% endif %}">
                 <i class="fa fa-download" aria-hidden="true"></i> CSV</a>
@@ -181,10 +182,10 @@
     </section>
     {% endif %}
 
-    {% if predicted_complex_list is defined %}
+    {% if predicted_complexes is defined %}
     <section id="complexes">
-        <h2>Predicted Complexes <i class="fa fa-question-circle" title="{{ tooltips['complex'] }}"></i>{% if complex_count > 1 %} (<span class="count">{{ '{:,}'.format(complex_count) }}</span>)
-            <a class="export-link" 
+        <h2>Predicted Complexes <i class="fa fa-question-circle" title="{{ tooltips['complex'] }}"></i> (<span class="count">{{ '{:,}'.format(complex_count) }}</span>)
+{% if complex_count > 1 %} <a class="export-link" 
                 href="{{ url('organism_download_complexes', kwargs={'organism_taxon_id':organism.taxon_id}) }}?include_trembl={% if include_trembl %}true{% else %}false{% endif %}">
                 <i class="fa fa-download" aria-hidden="true"></i> CSV</a>
             {% endif %}
@@ -199,20 +200,16 @@
                         <div class="complex-proteins">UniProt Accessions</div>
                     </div>
                     
-                    {% for predicted_complex in predicted_complex_list %}
-                        {% with predicted_complex_id=predicted_complex.0, 
-                                uniprot_accession_list=predicted_complex.1,
-                                complex_size = predicted_complex.2%}
-                            <a href="{{ url('complex', kwargs={'predicted_complex_id': predicted_complex_id}) }}"
-                               class="complex">
-                                <div class="complex-size">{{complex_size}}</div>
-                                <div class="complex-proteins">
-                                    {% for uniprot_accession in uniprot_accession_list %}
-                                            {{ uniprot_accession }}
-                                    {% endfor %}
-                                </div>
-                            </a>
-                        {% endwith %}
+                    {% for predicted_complex in predicted_complexes %}
+                        <a href="{{ url('complex', kwargs={'predicted_complex_id': predicted_complex.id}) }}"
+                           class="complex">
+                            <div class="complex-size">{{predicted_complex.size}}</div>
+                            <div class="complex-proteins">
+                                {% for protein in predicted_complex.proteins.all()[:10] %}
+                                    {{ protein.accession }}
+                                {% endfor %}
+                            </div>
+                        </a>
                     {% endfor %}
                 </div>
                 {% if load_more_complexes %}

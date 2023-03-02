@@ -11,7 +11,7 @@ from collections import defaultdict
 LIMITS = {
     "MAX_GRAPH_SIZE":20,
     "MIN_QUALITY":95,
-    "MAX_ITEMS_LOAD": 80,
+    "MAX_ITEMS_LOAD": 20,
     "COMPLEX_MAX_SIZE": 100,
 }
 
@@ -41,16 +41,30 @@ class HomePageForm(forms.Form):
 
 def home(request):
     context = {}
-    context["count_complexes"] = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"]).count()
-    context["count_proteins"] = Protein.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID).count()
-    context["count_interactions"] = ExperimentalProteinInteraction.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID).count()
-    context["count_interologs"] = PredictedProteinInteraction.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID).count()
+    context['include_trembl'] = include_trembl = request.GET.get('include_trembl','true') != 'false'
+    complex_qs = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])
+    protein_qs = Protein.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID)
+    interactions_qs = ExperimentalProteinInteraction.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID)
+    interolog_qs = PredictedProteinInteraction.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID)
+    if not include_trembl:
+        complex_qs = complex_qs.filter(proteins__database=0)
+        protein_qs = protein_qs.filter(database=0)
+        interactions_qs = interactions_qs.filter(first__database=0, second__database=0)
+        interolog_qs = interolog_qs.filter(first__database=0, second__database=0)
+    context["count_complexes"] = complex_qs.count()
+    context["count_proteins"] = protein_qs.count()
+    context["count_interactions"] = interactions_qs.count()
+    context["count_interologs"] = interolog_qs.count()
     context["organism"] = Organism.objects.get(taxon_id=1)
 
     # source counts
     context["count_organisms"] = Organism.objects.count() -1
-    context["count_source_proteins"] = Protein.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count()
-    context["count_source_interactions"] = ExperimentalProteinInteraction.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count()
+    if include_trembl:
+        context["count_source_proteins"] = Protein.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count()
+        context["count_source_interactions"] = ExperimentalProteinInteraction.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count()
+    else:
+        context["count_source_proteins"] = Protein.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID) & Q(database=0)).count()
+        context["count_source_interactions"] = ExperimentalProteinInteraction.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID), first__database=0, second__database=0).count()
 
     if request.method == "POST":
         home_page_form = HomePageForm(request.POST)
@@ -78,17 +92,22 @@ def about(request):
 def proteins(request, organism_taxon_id):
     n = LIMITS["MAX_ITEMS_LOAD"] 
     context = {}
+    context['include_trembl'] = include_trembl = request.GET.get('include_trembl','true') != 'false'
     context["defaults"] = DEFAULTS
+    protein_qs = Protein.objects
+    if not include_trembl:
+        protein_qs = protein_qs.filter(database=0)
+
     if organism_taxon_id == 0:
         context["organism"] = "all"
-        context["proteins"] = Protein.objects.all()[:n]
-        context["load_more_proteins"] = Protein.objects.all().count() > n
     else:
         organism = get_object_or_404(Organism, taxon_id=organism_taxon_id)
+        protein_qs = protein_qs.filter(taxon_id=organism)
         context["organism"] = organism
-        context["proteins"] = Protein.objects.filter(taxon_id=organism).all()[:n]
-        context["load_more_proteins"] = Protein.objects.filter(taxon_id=organism).all().count() > n
-    context["taxon_id"] = organism_taxon_id
+    protein_counts = protein_qs.count()
+    context["protein_counts"] = protein_counts
+    context["proteins"] = protein_qs.order_by("accession")[:n]
+    context["load_more_proteins"] = protein_counts > n
     return render(request, "all_proteins.html", context)
 
 def protein(request, protein_accession):
@@ -230,55 +249,47 @@ def organism(request, organism_taxon_id):
     data = dict()
     data['tooltips'] = TOOLTIPS
     data['include_trembl'] = include_trembl = request.GET.get('include_trembl','true') != 'false'
-    if include_trembl:
-        protein_set = organism.protein_set.only('accession').all()[:10]
-        data['protein_count'] = organism.protein_set.count()
-    else:
-        protein_set = organism.protein_set.only('accession').filter(database=0)[:10]
-        data['protein_count'] = organism.protein_set.filter(database=0).count()
-        #protein_set = organism.protein_set.filter(database=0)[:10]
-        #data['protein_count'] = organism.protein_set.filter(database=0).count()
-    data['load_more_proteins'] = data['protein_count'] > 10
-    data['organism'] = organism
-    data['protein_list'] = list(protein_set)
-    if include_trembl:
-        data['experimental_interaction_list'] = ExperimentalProteinInteraction.objects.only('first__accession', 'second__accession').filter(taxon_id=organism)[:10]
-        data['interaction_count'] = ExperimentalProteinInteraction.objects.filter(taxon_id=organism).count() 
-    else:
-        data['experimental_interaction_list'] = ExperimentalProteinInteraction.objects.only('first__accession', 'second__accession').filter(taxon_id=organism, first__database=0, second__database=0)[:10]
-        data['interaction_count'] = ExperimentalProteinInteraction.objects.filter(taxon_id=organism, first__database=0, second__database=0).count() 
-    data['load_more_interactions'] = data['interaction_count'] > 10
 
+    protein_qs = organism.protein_set.only("accession")
     if include_trembl:
-        data['inferred_interolog_list'] = PredictedProteinInteraction.objects.only('first__accession', 'second__accession', 'quality').filter(taxon_id=organism).order_by('-quality')[:10]
+        protein_qs = protein_qs.all()
     else:
-        data['inferred_interolog_list'] = PredictedProteinInteraction.objects.only('first__accession', 'second__accession', 'quality').filter(taxon_id=organism, first__database=0, second__database=0).order_by('-quality')[:10]
-    # this is a bit of a hack, we precomputed the number of interologs per organism to speed up
-    # this count
-    data['interolog_count'] = PredictedProteinInteraction.objects.filter(taxon_id=organism).count()
-    data['load_more_interologs'] = data['interolog_count'] > 10
-    # if 'complexes' in items_to_search_for:
-    #     predicted_complex_list = []
-    #     if include_trembl:
-    #         predicted_complex_set = PredictedComplex.objects.filter(taxon_id=organism, size__lte=80)[:10]
-    #         data['complex_count'] = PredictedComplex.objects.filter(taxon_id=organism, size__lte=80).count()
-    #     else:
-    #         print 'attempting to open', os.path.join(settings.BASE_DIR,'complexes_cache.json')
-    #         complex_cache = json.load(open(os.path.join(settings.BASE_DIR,'complexes_cache.json')))
-    #         complex_id_cache = json.load(open(os.path.join(settings.BASE_DIR,'complex_sp_ids.json')))
-    #         predicted_complex_set = PredictedComplex.objects.filter(pk__in=complex_id_cache[str(organism.taxon_id)]).order_by('id')[:10]
-    #         data['complex_count'] = complex_cache[str(organism.taxon_id)]
-    #     data['load_more_complexes'] = data['complex_count'] > 10
-    #     for predicted_complex in predicted_complex_set:
-    #         predicted_complex_protein_set = predicted_complex.proteins.only('accession').all()[:10]
-    #         predicted_complex_protein_list = list(predicted_complex_protein_set)
-    #         predicted_complex_list.append([predicted_complex.id, predicted_complex_protein_list, predicted_complex.size])
-    #     data['predicted_complex_list'] = predicted_complex_list
+        protein_qs = protein_qs.filter(database=0)
+    data['protein_count'] = protein_qs.count()
+    data['load_more_proteins'] = data['protein_count'] > LIMITS["MAX_ITEMS_LOAD"]
+    data['organism'] = organism
+    data['protein_list'] = protein_qs.order_by("accession")[:LIMITS["MAX_ITEMS_LOAD"]]
+
+    interactions_qs = (ExperimentalProteinInteraction.objects
+        .only('first__accession', 'second__accession')
+        .filter(taxon_id=organism))
+    if not include_trembl:
+        interactions_qs = interactions_qs.filter(first__database=0, second__database=0)
+    data['interaction_count'] = interactions_qs.count()
+    data['experimental_interaction_list'] = interactions_qs.order_by("first__accession")[:LIMITS["MAX_ITEMS_LOAD"]]
+    data['load_more_interactions'] = data['interaction_count'] > LIMITS["MAX_ITEMS_LOAD"]
+
+    interolog_qs = PredictedProteinInteraction.objects.only('first__accession', 'second__accession', 'quality').filter(taxon_id=organism)
+    if not include_trembl:
+        interolog_qs = interolog_qs.filter(taxon_id=organism, first__database=0, second__database=0)
+    data["interolog_count"] = interolog_qs.count()
+    data['inferred_interolog_list'] = interolog_qs.order_by('-quality')[:LIMITS["MAX_ITEMS_LOAD"]]
+    data['load_more_interologs'] = data['interolog_count'] > LIMITS["MAX_ITEMS_LOAD"]
+
+    # complexes
+    if organism.taxon_id == INSTANCE_ORG_TAX_ID:
+        complex_qs = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])
+        if not include_trembl:
+            complex_qs = complex_qs.filter(proteins__database=0)
+        data['complex_count'] = complex_qs.count()
+        data["predicted_complexes"] = complex_qs.order_by('-size')[:LIMITS["MAX_ITEMS_LOAD"]]
+        data['load_more_complexes'] = data['complex_count'] > LIMITS["MAX_ITEMS_LOAD"]
 
     return render(request, "organism.html", data)
 
 def organisms(request):
     context = {}
+    context['include_trembl'] = request.GET.get('include_trembl','true') != 'false'
     context["organisms"] = Organism.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).annotate(num_proteins=Count('protein')).order_by("-num_proteins").all()
     context["domain_dict"] = {k: v for k,v in Organism.DOMAINS}
     return render(request, "all_organisms.html", context)
@@ -406,8 +417,15 @@ def complex(request, predicted_complex_id):
     return render(request, "predicted_complex.html", context)
 
 def complexes(request):
+    n = LIMITS["MAX_ITEMS_LOAD"]
     context = {}
-    context["complexes"] = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"]).order_by("-size").all()
+    context['include_trembl'] = include_trembl = request.GET.get('include_trembl','true') != 'false'
+    complex_qs = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])
+    if not include_trembl:
+        complex_qs = complex_qs.filter(proteins__database=0)
+    complex_count = complex_qs.count()
+    context["complexes"] = complex_qs.order_by("-size")[:n]
+    context["load_more_complexes"] = complex_count > n
     return render(request, "all_complexes.html", context)
 
 def go_term(request, go_term_goid):
@@ -419,12 +437,25 @@ def get_proteins(request):
     data = "fail"
     logger.warning(request.get_full_path())
     if request.method == "GET":
+        include_trembl = request.GET.get('include_trembl','true') != 'false'
         query = request.GET.get("term", "")
         logger.warning(request.GET.get("term"))
         logger.warning(f"{request.GET}, {query}")
-        proteins = Protein.objects.filter(Q(accession__istartswith=query.upper())).order_by("accession")[:20]
-        proteins = proteins.values_list("accession")
-        data = json.dumps([{"label":str(i[0]), "value":str(i[0])} for i in proteins])
+        protein_qs = Protein.objects
+        if not include_trembl:
+            protein_qs = protein_qs.filter(database=0)
+        proteins = protein_qs.filter(
+            Q(accession__istartswith=query.upper()) |
+            Q(entry_name__istartswith=query.upper())
+            ).order_by("accession")[:LIMITS["MAX_ITEMS_LOAD"]]
+        proteins = proteins.values_list("accession", "entry_name")
+        res = []
+        for accession, entry_name in proteins:
+            if entry_name.strip():
+                res.append(f"{accession} - {entry_name}")
+            else:
+                res.append(f"{accession}")
+        data = json.dumps(res)
     mimetype = "application/json"
     return HttpResponse(data, content_type=mimetype)
 
@@ -620,23 +651,25 @@ def api_lm_complex(request):
         if filt == 'protein':
             protein_id = int(request.GET.get('element_id',0))
             protein = get_object_or_404(Protein, pk=protein_id)
-            complex_set = protein.predictedcomplex_set.filter(size__lte=80)[offset:offset+limit]
+            complex_set = protein.predictedcomplex_set.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])[offset:offset+limit]
         elif filt == 'exp_int':
             experimental_interaction_id = int(request.GET.get('element_id',0))
             experimental_interaction = get_object_or_404(ExperimentalProteinInteraction, pk=experimental_interaction_id)
-            complex_set = experimental_interaction.predictedcomplex_set.filter(size__lte=80)[offset:offset+limit]
+            complex_set = experimental_interaction.predictedcomplex_set.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])[offset:offset+limit]
         elif filt == 'interolog':
             interolog_id = int(request.GET.get('element_id',0))
             interolog = get_object_or_404(PredictedProteinInteraction, pk=interolog_id)
-            complex_set = interolog.predictedcomplex_set.filter(size__lte=80)[offset:offset+limit]
-        elif filt == 'organism':
-            organism_id = int(request.GET.get('element_id',0))
-            organism = get_object_or_404(Organism, pk=organism_id)
+            complex_set = interolog.predictedcomplex_set.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])[offset:offset+limit]
+        elif filt == 'organism': 
+            # complexes are only listed for the target organism, so the taxon id column is no longer present in the complexes
+            # therefore, this filter simply returns all complexes in the database
             if include_trembl:
-                complex_set = PredictedComplex.objects.filter(taxon_id=organism, size__lte=80)[offset:offset+limit]
+                complex_set = PredictedComplex.objects.filter(
+                    size__lte=LIMITS["COMPLEX_MAX_SIZE"]).order_by("-size")[offset:offset+limit]
             else:
-                complex_id_cache = json.load(open(os.path.join(settings.BASE_DIR,'complex_sp_ids.json')))
-                complex_set = PredictedComplex.objects.filter(pk__in=complex_id_cache[str(organism.taxon_id)]).order_by('id')[offset:offset+limit]
+                complex_set = PredictedComplex.objects.filter(
+                    size__lte=LIMITS["COMPLEX_MAX_SIZE"],
+                    protins__database=0).order_by('-size')[offset:offset+limit]
         elif filt == 'goterm':
             # this is a special case because we have to go through the
             # ComplexFunctionalAssignment model as opposed to just
@@ -668,9 +701,10 @@ def api_lm_complex(request):
             predicted_complex_protein_list = [p.accession for p in predicted_complex_protein_set]
             predicted_complex_list.append(
                 {
-                    'id':predicted_complex.id, 
-                    'size':predicted_complex.size,
-                    'proteins':predicted_complex_protein_list,
+                    'id': predicted_complex.id, 
+                    'size': predicted_complex.size,
+                    'quality': predicted_complex.quality,
+                    'proteins': predicted_complex_protein_list,
                 }
             )
      
@@ -688,7 +722,7 @@ def api_lm_protein(request):
         filt = request.GET.get('filter','')
         offset = int(request.GET.get('offset',0))
         limit = int(request.GET.get('limit',0))
-        include_trembl = request.GET.get('include_trembl','true')
+        include_trembl = request.GET.get('include_trembl','true') != "false"
         logger.warning(f"include trembl {include_trembl}")
         if limit > MAX_LIMIT_RANGE:
             data = 'fail: please limit your requests to ' + str(MAX_LIMIT_RANGE) + ' elements or less'
@@ -700,14 +734,13 @@ def api_lm_protein(request):
         #   - a complex
         elif filt == 'organism':
             organism_id = int(request.GET.get('element_id',0))
-            if organism_id == 0:
-                protein_set = Protein.objects.all().order_by("accession")[offset:offset+limit]
-            else:
+            protein_qs = Protein.objects
+            if not include_trembl:
+                protein_qs = protein_qs.filter(database=0)
+            if organism_id != 0:
                 organism = get_object_or_404(Organism, pk=organism_id)
-                if include_trembl:
-                    protein_set = organism.protein_set.all().order_by("accession")[offset:offset+limit]
-                else:
-                    protein_set = organism.protein_set.filter(database=0).order_by("accession")[offset:offset+limit]
+                protein_qs = protein_qs.filter(taxon_id=organism)
+            protein_set = protein_qs.order_by("accession")[offset:offset+limit]
         elif filt == 'goterm':
             go_term_id = int(request.GET.get('element_id',0))
             go_term = get_object_or_404(GOTerm, pk=go_term_id)
