@@ -1,8 +1,11 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django import forms
 from django.db.models import Q, Count
+from django.contrib.staticfiles.storage import staticfiles_storage
 from .models import Organism, Protein, ExperimentalProteinInteraction, PredictedProteinInteraction, PredictedComplex
+import os
+import csv
 import json
 import logging
 from itertools import chain
@@ -32,8 +35,30 @@ TOOLTIPS = {
 	'source-interaction': 'The experimental interaction that was used to infer this interolog.'
 }
 
+
+def batch_qs(qs, batch_size=2000):
+    next = True
+    start = 0
+    n = 0
+    while next:
+        next = qs[start:start+batch_size].count() >= batch_size
+        start += batch_size
+        for item in qs[start:start+batch_size]:
+            yield item
+        n += 1
+
+
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+# taken from https://docs.djangoproject.com/en/2.0/howto/outputting-csv/#streaming-large-csv-files
+class Echo:
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
 
 # Create your views here.
 class HomePageForm(forms.Form):
@@ -178,15 +203,13 @@ def organism_download_interologs(request, organism_taxon_id):
     include_trembl = request.GET.get('include_trembl','true') != 'false'
 
     if include_trembl:
-        if organism.id in ORGANISM_INTEROLOG_CACHE_ALL:
-            if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/static/downloads_cache/all/' + str(organism.taxon_id) + '-interologs-trembl.csv'):
-                return redirect(staticfiles_storage.url('downloads_cache/all/' + str(organism.taxon_id) + '-interologs-trembl.csv'))
+        if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/static/downloads_cache/all/' + str(organism.taxon_id) + '-interologs-trembl.csv'):
+            return redirect(staticfiles_storage.url('downloads_cache/all/' + str(organism.taxon_id) + '-interologs-trembl.csv'))
         interologs = PredictedProteinInteraction.objects.select_related(
             'first', 'second', 'first_homology', 'second_homology').filter(taxon_id=organism).order_by('-quality')
     else:
-        if organism.id in ORGANISM_INTEROLOG_CACHE_SWISSPROT:
-            if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/static/downloads_cache/swissprot/' + str(organism.taxon_id) + '-interologs-no-trembl.csv'):
-                return redirect(staticfiles_storage.url('downloads_cache/swissprot/' + str(organism.taxon_id) + '-interologs-no-trembl.csv'))
+        if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/static/downloads_cache/swissprot/' + str(organism.taxon_id) + '-interologs-no-trembl.csv'):
+            return redirect(staticfiles_storage.url('downloads_cache/swissprot/' + str(organism.taxon_id) + '-interologs-no-trembl.csv'))
         interologs = PredictedProteinInteraction.objects.select_related(
             'first', 'second', 'first_homology', 'second_homology').filter(taxon_id=organism, first__database=0, second__database=0).order_by('-quality')
 
@@ -212,21 +235,10 @@ def organism_download_interologs(request, organism_taxon_id):
     return response
 
 def organism_download_complexes(request, organism_taxon_id):
-    organism = get_object_or_404(Organism, taxon_id=organism_taxon_id)
     include_trembl = request.GET.get('include_trembl','true') != 'false'
-
-
-    if include_trembl:
-        if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/static/downloads_cache/all/' + str(organism.taxon_id) + '-complexes-trembl.csv'):
-            return redirect(staticfiles_storage.url('downloads_cache/all/' + str(organism.taxon_id) + '-complexes-trembl.csv'))
-
-        predicted_complex_set = PredictedComplex.objects.filter(taxon_id=organism, size__lte=80)
-    else:
-        if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/static/downloads_cache/swissprot/' + str(organism.taxon_id) + '-complexes-no-trembl.csv'):
-            return redirect(staticfiles_storage.url('downloads_cache/swissprot/' + str(organism.taxon_id) + '-complexes-no-trembl.csv'))
-        # this has to be computed, the real query to obtain complexes with only swissprot proteins is complicated
-        complex_id_cache = json.load(open(os.path.join(settings.BASE_DIR,'complex_sp_ids.json')))
-        predicted_complex_set = PredictedComplex.objects.filter(pk__in=complex_id_cache[str(organism.taxon_id)]).order_by('id')
+    complex_qs = PredictedComplex.objects.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])
+    if not include_trembl:
+        complex_qs = complex_qs.filter(proteins__database=0)
 
     response = StreamingHttpResponse(
         (
@@ -237,7 +249,7 @@ def organism_download_complexes(request, organism_taxon_id):
                 str(i.pvalue),
                 ';'.join(p.accession for p in i.proteins.all())
             ]) + '\n' 
-        for i in predicted_complex_set),
+        for i in complex_qs.order_by("-size")),
         content_type="text/csv"
     )
     trflag = "" if include_trembl else "no-"
@@ -389,31 +401,22 @@ def interolog(request, first_accession, second_accession):
 def complex(request, predicted_complex_id):
     predicted_complex = get_object_or_404(PredictedComplex, pk=predicted_complex_id)
     protein_set = predicted_complex.proteins.all()
-    protein_list = list(protein_set)
-    context = dict()
+    context = {}
     context['tooltips'] = TOOLTIPS
-    experimental_interaction_set = predicted_complex.exp_interactions.all()
-    inferred_interolog_set = predicted_complex.pred_interactions.all().order_by("-quality")
-    experimental_interaction_and_inferred_interolog_set = chain(experimental_interaction_set, inferred_interolog_set)
-    experimental_interaction_and_inferred_interolog_list = list(experimental_interaction_and_inferred_interolog_set)
-    # TODO: verify that this is correct with Alfonso
-    similar_predicted_complex_list = []
-    #similar_predicted_complex_set = PredictedComplex.objects.all()[:10]
-    #for similar_predicted_complex in similar_predicted_complex_set:
-    #    predicted_complex_protein_set = similar_predicted_complex.proteins.all()[:10]
-    #    predicted_complex_protein_list = list(predicted_complex_protein_set)
-    #    similar_predicted_complex_list.append([1, similar_predicted_complex.id, predicted_complex_protein_list])
-    complex_functional_assignment_set = predicted_complex.complexfunctionalassignment_set.all()[:10]
-    complex_functional_assignment_list = list(complex_functional_assignment_set)
+    context['include_trembl'] = request.GET.get('include_trembl','true') != 'false'
     context["predicted_complex"] = predicted_complex
-    context["protein_list"] = protein_list
-    context["experimental_interaction_list"] = list(experimental_interaction_set)
-    context["interaction_count"] = len(context["experimental_interaction_list"])
-    context["inferred_interolog_list"] = list(inferred_interolog_set)
-    context['interolog_count'] = len(context["inferred_interolog_list"])
-    context["experimental_interaction_and_inferred_interolog_list"] = experimental_interaction_and_inferred_interolog_list
-    context["similar_predicted_complex_list"] = similar_predicted_complex_list
-    context["complex_functional_assignment_list"] = complex_functional_assignment_list
+    context["protein_list"] = predicted_complex.proteins.order_by("accession")[:LIMITS["MAX_ITEMS_LOAD"]]
+    context["protein_count"] = predicted_complex.proteins.count()
+    context["load_more_proteins"] = context["protein_count"] > LIMITS["MAX_ITEMS_LOAD"]
+    context["experimental_interaction_list"] = predicted_complex.exp_interactions.order_by("first__accession")[:LIMITS["MAX_ITEMS_LOAD"]]
+    context["interaction_count"] = predicted_complex.exp_interactions.count()
+    context["load_more_interactions"] = context["interaction_count"] > LIMITS["MAX_ITEMS_LOAD"]
+    context["inferred_interolog_list"] = predicted_complex.pred_interactions.order_by("-quality")[:LIMITS["MAX_ITEMS_LOAD"]]
+    context['interolog_count'] = predicted_complex.pred_interactions.count()
+    context["load_more_interologs"] = context["interolog_count"] > LIMITS["MAX_ITEMS_LOAD"]
+    context["complex_functional_assignment_list"] = predicted_complex.complexfunctionalassignment_set.order_by("pvalue")[:LIMITS["MAX_ITEMS_LOAD"]]
+    context["goterm_count"] = predicted_complex.complexfunctionalassignment_set.count()
+    context["load_more_goterms"] = context["goterm_count"] > LIMITS["MAX_ITEMS_LOAD"]
     return render(request, "predicted_complex.html", context)
 
 def complexes(request):
@@ -606,6 +609,10 @@ def api_lm_interolog(request):
             organism_id = int(request.GET.get('element_id',0))
             organism = get_object_or_404(Organism, pk=organism_id)
             interolog_set = PredictedProteinInteraction.objects.filter(taxon_id=organism).order_by('-quality')[offset:offset+limit]
+        elif filt == "complex":
+            complex_id = int(request.GET.get("element_id", 0))
+            predicted_complex = get_object_or_404(PredictedComplex, pk=complex_id)
+            interolog_set = predicted_complex.pred_interactions.order_by("-quality")[offset:offset+limit]
         else:
             data = 'fail: wrong filter'
             return HttpResponse(data, mimetype)
@@ -750,7 +757,7 @@ def api_lm_protein(request):
                 protein_set = go_term.protein_set.filter(database=0).order_by("accession")[offset:offset+limit]
         elif filt == 'complex':
             complex_id = int(request.GET.get('element_id',0))
-            predicted_complex = get_object_or_404(PredictedComplex, pk=predicted_complex_id)
+            predicted_complex = get_object_or_404(PredictedComplex, pk=complex_id)
             if include_trembl:
                 protein_set = predicted_complex.proteins.all().order_by("accession")[offset:offset+limit]
             else:

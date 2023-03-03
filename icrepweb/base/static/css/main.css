@@ -330,7 +330,7 @@ img.nav-icon{
 }
 
 .interolog-3columns {
-  grid-template-columns: 1fr 7fr 7fr;
+  grid-template-columns: 1fr 2fr 2fr;
 }
 
 .interolog-4columns {
@@ -918,9 +918,6 @@ table-horizontal tbody > tr:last-child > td {
   }
   h2 {
     font-size: 1.5em;
-  }
-  table {
-    font-size: 0.75em;
   }
 }
 

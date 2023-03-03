@@ -10,7 +10,7 @@
         <script>
             // Load more API configuration
             var CURR_ELEMENT_ID = {{organism.id}};
-            var INCLUDE_TrEMBL = {% if include_trembl %}true{% else %}false{% endif %};
+            var INCLUDE_TrEMBL = {{include_trembl|tojson}};
         </script>
         <script src="{{static('js/add_elements.js')}}"></script>
         <script src="{{static('js/load_more_organism.js')}}"></script>

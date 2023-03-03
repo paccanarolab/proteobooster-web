@@ -11,9 +11,15 @@
         <script src="{{static('js/cytoscape-springy.js')}}"></script>
         <script>
             var getNetworkUrl = HOME_URL + "/api/complex/{{predicted_complex.id}}";
-            var INCLUDE_TrEMBL = false;
+            var CURR_ELEMENT_ID = {{predicted_complex.id}};
+            var INCLUDE_TrEMBL = {{include_trembl|tojson}};
         </script>
         <script src="{{static('js/plot_complex.js')}}"></script>
+        <script src="{{static('js/add_elements.js')}}"></script>
+        <script src="{{static('js/load_more_complex_page.js')}}"></script>
+        <script src="{{static('js/load_more.js')}}"></script>
+        <script src="{{ static('js/spinner.js') }}"></script>
+        <script src="{{ static('js/autocomplete.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +34,7 @@
 
     <section id="complex-information">
 
-        <h2>Proteins (<span class="count">{{'{:,}'.format(protein_list | length)}}</span>)</h2>
+        <h2>Proteins (<span class="count">{{'{:,}'.format(protein_count)}}</span>)</h2>
         <div class="table_division">
             <div class="scrollbar_division">
                 <div id="protein_info-container">
@@ -55,7 +61,7 @@
         </div>
         
         {% if experimental_interaction_list is defined %}
-            <h2>Experimental Interactions</h2>
+            <h2>Experimental Interactions (<span class="count">{{'{:,}'.format(interaction_count)}}</span>)</h2>
             {% if interaction_count > 0 %}
             <div class="table_division">
                 <div class="scrollbar_division">
@@ -83,7 +89,7 @@
         {%endif%}
 
         {% if inferred_interolog_list is defined %}
-        <h2>Interologs</h2>
+        <h2>Interologs (<span class="count">{{'{:,}'.format(interolog_count)}}</span>)</h2>
             {% if interolog_count > 0 %}
                 <div class="table_division">
                     <div class="scrollbar_division">
@@ -95,7 +101,7 @@
                             </div>
                             {% for inferred_interolog in inferred_interolog_list %}
                                 <a href="{{ url('interolog', kwargs={'first_accession': inferred_interolog.first.accession, 'second_accession': inferred_interolog.second.accession}) }}"
-                                    class="interolog interaction-3columns">
+                                    class="interolog interolog-3columns">
                                     <div class="interolog-quality">{{ '{0:.4g}'.format(inferred_interolog.quality) }}</div>
                                     <div class="interolog-interactor">{{ inferred_interolog.first.accession }}</div>
                                     <div class="interolog-interactor">{{ inferred_interolog.second.accession }}</div>
@@ -112,7 +118,7 @@
             {% endif %}
         {% endif %}
 
-        <h2>GO Terms</h2>
+        <h2>GO Terms (<span class="count">{{'{:,}'.format(goterm_count)}}</span>)</h2>
         <div class="table_division">
             <div class="scrollbar_division">
                 <div id="goterms-container">
