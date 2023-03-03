@@ -8,7 +8,8 @@ services:
     #   dockerfile: Dockerfile.prod
     command: gunicorn icrepweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
-      - static_icrep:/home/app/icrep/staticfiles
+      #- static_icrep:/home/app/icrep/staticfiles
+      - ./icrepweb/base/static:/home/app/icrep/staticfiles
       - ./icrepweb/base:/home/app/icrep/base
       - ./icrepweb/icrepweb:/home/app/icrep/icrepweb
     # uncomment these to access the app directly for test purposes, 
@@ -31,7 +32,7 @@ services:
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
       - icrep-db_data:/var/lib/postgresql/data/
-      - ./icrep.dump.sql:/docker-entrypoint-initdb.d/init.sql
+        # - ./icrep.dump.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env.icrep.prod.db
     networks:

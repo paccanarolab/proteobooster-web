@@ -11,9 +11,14 @@
         <script src="{{static('js/cytoscape-springy.js')}}"></script>
         <script>
             var getNetworkUrl = HOME_URL + "/api/protein/{{protein.accession}}";
-            var INCLUDE_TrEMBL = false;
+            var CURR_ELEMENT_ID = {{protein.id}};
         </script>
         <script src="{{static('js/plot_complex.js')}}"></script>
+        <script src="{{static('js/add_elements.js')}}"></script>
+        <script src="{{static('js/load_more_protein.js')}}"></script>
+        <script src="{{static('js/load_more.js')}}"></script>
+        <script src="{{ static('js/spinner.js') }}"></script>
+        <script src="{{ static('js/autocomplete.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -102,19 +107,15 @@
                         <div class="complex-proteins">Protein Accessions</div>
                     </div>
                     {% for predicted_complex in predicted_complex_list %}
-                        {% with predicted_complex_id=predicted_complex.0, 
-                                uniprot_accession_list=predicted_complex.1,
-                                complex_size = predicted_complex.2 %}
-                            <a href="{{ url('complex', kwargs={'predicted_complex_id':predicted_complex_id}) }}"
-                                class="complex">
-                                <div class="complex-size">{{complex_size}}</div>
-                                <div class="complex-proteins">
-                                    {% for uniprot_accession in uniprot_accession_list %}
-                                        {{ uniprot_accession.accession }}
-                                    {% endfor %}
-                                </div>
-                            </a>
-                        {% endwith %}
+                        <a href="{{ url('complex', kwargs={'predicted_complex_id':predicted_complex.id}) }}"
+                            class="complex">
+                            <div class="complex-size">{{predicted_complex.size}}</div>
+                            <div class="complex-proteins">
+                                {% for uniprot_accession in predicted_complex.proteins.order_by("accession")[:10] %}
+                                    {{ uniprot_accession.accession }}
+                                {% endfor %}
+                            </div>
+                        </a>
                     {% endfor %}
                 </div>
                 {% if load_more_complexes %}
