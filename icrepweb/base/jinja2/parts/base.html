@@ -84,11 +84,11 @@
                             <img class="nav-icon" src="{{ static('icons/dna.svg')}}" alt="protein-search">
                             <span>PROTEIN SEARCH</span>
                             <div class='arrow-left'></div>
-                        </a-->
-                        <a href="{{ url('downloads') }}" id="nav-download" class="nav-item {% if active == 'downloads' %}selected-nav-item{% endif %}">
-                            <!--img class="nav-icon" src="{{ static('icons/download.svg')}}" alt="downloads"-->
-                            <span>Downloads</span>
                         </a>
+                        <a href="{{ url('downloads') }}" id="nav-download" class="nav-item {% if active == 'downloads' %}selected-nav-item{% endif %}">
+                            <img class="nav-icon" src="{{ static('icons/download.svg')}}" alt="downloads">
+                            <span>Downloads</span>
+                        </a-->
                         <a href="{{ url('about') }}" id="nav-about" class="nav-item {% if active == 'about' %}selected-nav-item{% endif %}">
                             <!--img class="nav-icon" src="{{ static('icons/info.svg')}}" alt="about"-->
                             <span>About</span>

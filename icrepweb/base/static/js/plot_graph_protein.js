@@ -6,7 +6,6 @@ $(document).ready(function(){
 
 
 var getNetwork = function(request_url){
-    console.log({protein_id:CURR_ELEMENT_ID});
     $.ajax({
         url:request_url,
         type:'get',
@@ -57,7 +56,6 @@ var plotNetwork = function(data){
 
     cy.on("tap", "node", function(evt){
         var node = evt.target;
-        console.log("clicked", node.id());
         location.href = getUrl("protein", node.id());
     });
 };

@@ -50,7 +50,6 @@ $(document).ready(function() {
                 },
                 success: function(data) {
                     proteinCache[ term ] = data;
-                    console.log(proteinCache);
                     response(data);
                 },
                 error: autocompleteError

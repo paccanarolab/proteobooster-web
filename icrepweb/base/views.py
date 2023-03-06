@@ -137,7 +137,6 @@ def proteins(request, organism_taxon_id):
 
 def protein(request, protein_accession):
     protein = get_object_or_404(Protein, accession=protein_accession)
-    logger.warning(protein.id)
     experimental_interaction_list = []
     inferred_interolog_list = []
     context = dict()
@@ -364,12 +363,9 @@ def go_term(request, go_term_goid):
 # API
 def get_proteins(request):
     data = "fail"
-    logger.warning(request.get_full_path())
     if request.method == "GET":
         include_trembl = request.GET.get('include_trembl','true') != 'false'
         query = request.GET.get("term", "")
-        logger.warning(request.GET.get("term"))
-        logger.warning(f"{request.GET}, {query}")
         protein_qs = Protein.objects
         if not include_trembl:
             protein_qs = protein_qs.filter(database=0)
@@ -465,7 +461,6 @@ def get_protein_graph(request, protein_accession):
     '''
     data = 'fail'
     mimetype = 'application/json'
-    logger.warning(protein_accession)
     protein = get_object_or_404(Protein, accession=protein_accession)
     interactions = ExperimentalProteinInteraction.objects.filter(Q(first=protein) | Q(second=protein))
     protein_set = set()
@@ -656,7 +651,6 @@ def api_lm_protein(request):
         offset = int(request.GET.get('offset',0))
         limit = int(request.GET.get('limit',0))
         include_trembl = request.GET.get('include_trembl','true') != "false"
-        logger.warning(f"include trembl {include_trembl}")
         if limit > MAX_LIMIT_RANGE:
             data = 'fail: please limit your requests to ' + str(MAX_LIMIT_RANGE) + ' elements or less'
             return HttpResponse(data, mimetype)
