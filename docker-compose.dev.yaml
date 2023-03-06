@@ -32,7 +32,7 @@ services:
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
       - icrep-db_data:/var/lib/postgresql/data/
-        # - ./icrep.dump.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./icrep.dump.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env.icrep.prod.db
     networks:

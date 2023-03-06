@@ -31,6 +31,7 @@ DEBUG = int(os.environ.get("ICREP_DEBUG", default=0))
 
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS = os.environ.get("ICREP_ALLOWED_HOSTS", default="").split(" ")
+CSRF_TRUSTED_ORIGINS = os.environ.get("ICREP_CSRF_TRUSTED_ORIGINS", default="").split(" ")
 
 
 # Application definition
@@ -132,12 +133,12 @@ USE_TZ = True
 
 # USE_X_FORWARDED_HOST = True
 # 
-FORCE_SCRIPT_NAME = "/icrep/"
+FORCE_SCRIPT_NAME = os.environ.get("ICREP_FORCE_SCRIPT_NAME", default="/icrep/")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/icrep_static/'
+STATIC_URL = os.environ.get("ICREP_STATIC_URL", default='/icrep_static/')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type

@@ -166,14 +166,14 @@ def protein(request, protein_accession):
 def organism_download_interactions(request, organism_taxon_id):
     include_trembl = request.GET.get('include_trembl','true') != 'false'
     if not include_trembl:
-        return redirect(staticfiles_storage.url(f'downloads/inteorlogs-{organism_taxon_id}-no-trembl.csv'))
-    return redirect(staticfiles_storage.url(f'downloads/inteorlogs-no-trembl.csv'))
+        return redirect(staticfiles_storage.url(f'downloads/interactions-{organism_taxon_id}-no-trembl.csv'))
+    return redirect(staticfiles_storage.url(f'downloads/interactions-{organism_taxon_id}.csv'))
 
 def organism_download_interologs(request, organism_taxon_id):
     include_trembl = request.GET.get('include_trembl','true') != 'false'
     if not include_trembl:
         return redirect(staticfiles_storage.url(f'downloads/inteorlogs-{organism_taxon_id}-no-trembl.csv'))
-    return redirect(staticfiles_storage.url(f'downloads/inteorlogs-no-trembl.csv'))
+    return redirect(staticfiles_storage.url(f'downloads/inteorlogs-{organism_taxon_id}.csv'))
 
 def organism_download_complexes(request, organism_taxon_id):
     include_trembl = request.GET.get('include_trembl','true') != 'false'
