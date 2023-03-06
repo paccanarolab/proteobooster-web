@@ -376,10 +376,11 @@ def get_proteins(request):
         proteins = proteins.values_list("accession", "entry_name")
         res = []
         for accession, entry_name in proteins:
-            if entry_name.strip():
-                res.append(f"{accession} - {entry_name}")
-            else:
-                res.append(f"{accession}")
+            res.append(f"{accession}")
+        #     if entry_name.strip():
+        #         res.append(f"{accession} - {entry_name}")
+        #     else:
+        #         res.append(f"{accession}")
         data = json.dumps(res)
     mimetype = "application/json"
     return HttpResponse(data, content_type=mimetype)
