@@ -63,11 +63,14 @@
             {{ csrf_input }}
             <div id="search-input">
                 <div id="organism-search-wrapper">
-                    <input id="organism-search" 
+                    <input id="protein-search-input" 
                         class="text_field protein-search" 
-                        name="protein_accession" 
+                        name="protein_display" 
                         type="text" 
                         placeholder="Protein Accession (Soltu.DM.01G007030.1)" >
+                    <input id="protein-accession"
+                        name="protein_accession" 
+                        type="hidden">
                 </div>
                 {#<i id="search-button" class="fa fa-search fa-3x" aria-hidden="true"></i>#}
                 <button id="search-button"

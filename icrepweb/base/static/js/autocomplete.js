@@ -54,8 +54,18 @@ $(document).ready(function() {
                 },
                 error: autocompleteError
             });
+        },
+        select: function(event, ui){
+            $("#protein-search-input").val(ui.item.display); 
+            $("#protein-accession").val(ui.item.elem); 
+            return false;
         }
-    });
+    })
+    .autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+            .append(`<div>${item.display}</div>`)
+            .appendTo(ul);
+    };
 
     $( "form" ).submit(function( event ) {
         loadingAnimation('#spinnerWrapper', 'loading organism: ' + $('#organism-search').val());

@@ -63,6 +63,7 @@ class Echo:
 # Create your views here.
 class HomePageForm(forms.Form):
     protein_accession = forms.CharField(required=True)
+    protein_display = forms.CharField(required=True)
 
 def home(request):
     context = {}
@@ -310,8 +311,8 @@ def interolog(request, first_accession, second_accession):
         #for sibling_inferred_interolog in sibling_inferred_interolog_set:
         #    sibling_inferred_interolog_list.append(sibling_inferred_interolog)
     predicted_complex_list = []
-    predicted_complex_set = inferred_interolog.predictedcomplex_set.all()[:10]
-    data['complex_count'] = inferred_interolog.predictedcomplex_set.count()
+    predicted_complex_set = inferred_interolog.predictedcomplex_set.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"])[:10]
+    data['complex_count'] = inferred_interolog.predictedcomplex_set.filter(size__lte=LIMITS["COMPLEX_MAX_SIZE"]).count()
     data['load_more_complexes'] = data['complex_count'] > 10
     for predicted_complex in predicted_complex_set:
         predicted_complex_protein_set = predicted_complex.proteins.all()[:10]
@@ -370,17 +371,18 @@ def get_proteins(request):
         if not include_trembl:
             protein_qs = protein_qs.filter(database=0)
         proteins = protein_qs.filter(
-            Q(accession__istartswith=query.upper()) |
-            Q(entry_name__istartswith=query.upper())
+            Q(accession__icontains=query) |
+            Q(entry_name__icontains=query)
             ).order_by("accession")[:LIMITS["MAX_ITEMS_LOAD"]]
         proteins = proteins.values_list("accession", "entry_name")
         res = []
         for accession, entry_name in proteins:
-            res.append(f"{accession}")
-        #     if entry_name.strip():
-        #         res.append(f"{accession} - {entry_name}")
-        #     else:
-        #         res.append(f"{accession}")
+            item = {"elem": accession}
+            if entry_name.strip():
+                item["display"] = f"{accession} - {entry_name}"
+            else:
+                item["display"] = accession
+            res.append(item)
         data = json.dumps(res)
     mimetype = "application/json"
     return HttpResponse(data, content_type=mimetype)
