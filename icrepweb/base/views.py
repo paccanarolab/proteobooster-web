@@ -481,7 +481,8 @@ def get_protein_graph(request, protein_accession):
     # if we still have space, look for more nodes.
     remaining_nodes = LIMITS["MAX_GRAPH_SIZE"] - len(protein_set)
     if remaining_nodes >= 1:
-        interologs = PredictedProteinInteraction.objects.filter(Q(first=protein) | Q(second=protein)).filter(quality__gte=LIMITS["MIN_QUALITY"]).order_by("quality")[:remaining_nodes]
+        #interologs = PredictedProteinInteraction.objects.filter(Q(first=protein) | Q(second=protein)).filter(quality__gte=LIMITS["MIN_QUALITY"]).order_by("quality")[:remaining_nodes]
+        interologs = PredictedProteinInteraction.objects.filter(Q(first=protein) | Q(second=protein)).order_by("quality")[:remaining_nodes]
         for interolog in interologs:
             protein_set.add(interolog.first)
             protein_set.add(interolog.second)
