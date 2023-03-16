@@ -1,29 +1,29 @@
 version: "3.9"
 services:
   # corex
-  icrep:
-    image: torresmateo/icrep:dev
+  proteoboost:
+    image: torresmateo/proteoboost:dev
     # build: 
-    #   context: ./icrepweb
+    #   context: ./proteoboostweb
     #   dockerfile: Dockerfile.prod
-    command: gunicorn icrepweb.wsgi:application --bind 0.0.0.0:80 -w 4
+    command: gunicorn proteoboostweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
-      #- static_icrep:/home/app/icrep/staticfiles
-      - ./icrepweb/base/static:/home/app/icrep/staticfiles
-      - ./icrepweb/base:/home/app/icrep/base
-      - ./icrepweb/icrepweb:/home/app/icrep/icrepweb
+      #- static_proteoboost:/home/app/proteoboost/staticfiles
+      - ./proteoboostweb/base/static:/home/app/proteoboost/staticfiles
+      - ./proteoboostweb/base:/home/app/proteoboost/base
+      - ./proteoboostweb/proteoboostweb:/home/app/proteoboost/proteoboostweb
     # uncomment these to access the app directly for test purposes, 
     # but expect everything to be broken.
     ports:
       - 8080:80
     env_file: 
-      - ./.env.icrep.prod
+      - ./.env.proteoboost.prod
     networks:
-      - icrep
+      - proteoboost
     depends_on:
-      icrep-db:
+      proteoboost-db:
         condition: service_healthy
-  icrep-db:
+  proteoboost-db:
     image: postgres:13.0-alpine
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -31,12 +31,12 @@ services:
       timeout: 5s
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
-      - icrep-db_data:/var/lib/postgresql/data/
-      - ./icrep.dump.sql:/docker-entrypoint-initdb.d/init.sql
+      - proteoboost-db_data:/var/lib/postgresql/data/
+      - ./proteoboost.dump.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - ./.env.icrep.prod.db
+      - ./.env.proteoboost.prod.db
     networks:
-      - icrep
+      - proteoboost
   pgadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
@@ -47,25 +47,25 @@ services:
     ports:
       - "5050:80"
     networks:
-      - icrep
+      - proteoboost
   # reverse proxy
   proxy:
     build: ./reverse-proxy
     volumes:
       - ./reverse-proxy/default.conf:/etc/nginx/conf.d/nginx.conf
-        #- static_icrep:/home/app/icrep/staticfiles
-      - ./icrepweb/base/static:/home/app/icrep/staticfiles
+        #- static_proteoboost:/home/app/proteoboost/staticfiles
+      - ./proteoboostweb/base/static:/home/app/proteoboost/staticfiles
     networks:
-      - icrep
+      - proteoboost
     ports:
       - 80:80
     depends_on:
-      - icrep
+      - proteoboost
 networks:
-  icrep:
-    name: icrep
+  proteoboost:
+    name: proteoboost
     external: false
 
 volumes:
-  icrep-db_data:
-  static_icrep:
+  proteoboost-db_data:
+  static_proteoboost:

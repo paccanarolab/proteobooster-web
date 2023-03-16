@@ -1,21 +1,21 @@
 version: "3.9"
 services:
   # corex
-  icrep:
+  proteoboost:
     build: 
-      context: ./icrepweb
+      context: ./proteoboostweb
       dockerfile: Dockerfile.prod
-    command: gunicorn icrepweb.wsgi:application --bind 0.0.0.0:80 -w 4
+    command: gunicorn proteoboostweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
-      - static_icrep:/home/app/icrep/staticfiles
+      - static_proteoboost:/home/app/proteoboost/staticfiles
     env_file: 
-      - ./.env.icrep.prod
+      - ./.env.proteoboost.prod
     networks:
-      - icrep
+      - proteoboost
     depends_on:
-      icrep-db:
+      proteoboost-db:
         condition: service_healthy
-  icrep-db:
+  proteoboost-db:
     image: postgres:13.0-alpine
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -23,29 +23,29 @@ services:
       timeout: 5s
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
-      - icrep-db_data:/var/lib/postgresql/data/
-      - ./databases/icrep.sql:/docker-entrypoint-initdb.d/init.sql
+      - proteoboost-db_data:/var/lib/postgresql/data/
+      - ./databases/proteoboost.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - ./.env.icrep.prod.db
+      - ./.env.proteoboost.prod.db
     networks:
-      - icrep
+      - proteoboost
 
   # reverse proxy
   proxy:
     build: ./reverse-proxy
     volumes:
-      - static_icrep:/home/app/icrep/staticfiles
+      - static_proteoboost:/home/app/proteoboost/staticfiles
     networks:
-      - icrep
+      - proteoboost
     ports:
       - 80:80
     depends_on:
-      - icrep
+      - proteoboost
 networks:
-  icrep:
-    name: icrep
+  proteoboost:
+    name: proteoboost
     external: false
 
 volumes:
-  icrep-db_data:
-  static_icrep:
+  proteoboost-db_data:
+  static_proteoboost:

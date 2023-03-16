@@ -104,14 +104,14 @@ def home(request):
 def downloads(request):
     data = {
         'active':'downloads',
-        'title':'ICRep | Downloads'
+        'title':'ProteoBooster | Downloads'
     }
     return render(request, "downloads.html", data)
 
 def about(request):
     data = {
         'active':'about',
-        'title':'ICRep | About'
+        'title':'ProteoBooster | About'
     }
     return render(request, "about.html", data)
 
@@ -359,7 +359,6 @@ def complexes(request):
 
 def go_term(request, go_term_goid):
     return render(request, "home.html") 
-
 
 # API
 def get_proteins(request):
