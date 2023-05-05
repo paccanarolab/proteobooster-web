@@ -1,11 +1,16 @@
 from django.db import models
 
+
 # Create your models here.
 class GOTerm(models.Model):
     """ GO terms contain information about the `go_id`, the description of
         the `function`, the sub-`ontology` it belongs to (bp, mf or cc)
     """
-    GO_ONTOLOGIES = (('bp', 'Biological Process'), ('mf', 'Molecular Function'), ('cc', 'Cellular component'))
+    GO_ONTOLOGIES = (
+        ('bp', 'Biological Process'),
+        ('mf', 'Molecular Function'),
+        ('cc', 'Cellular component')
+    )
     go_id = models.IntegerField()
     function = models.CharField(max_length=300)
     ontology = models.CharField(max_length=2, choices=GO_ONTOLOGIES)
@@ -16,9 +21,14 @@ class GOTerm(models.Model):
 
 class Organism(models.Model):
     """ An organism is identified by its `taxon_id` and its
-        `name` (scientific name). 
+        `name` (scientific name).
     """
-    DOMAINS = (('a', 'Archaea'), ('b', 'Bacteria'), ('e', 'Eukaryota'), ('v', 'Viridae'))
+    DOMAINS = (
+        ('a', 'Archaea'),
+        ('b', 'Bacteria'),
+        ('e', 'Eukaryota'),
+        ('v', 'Viridae')
+    )
     taxon_id = models.PositiveIntegerField()
     name = models.CharField(db_index=True, max_length=150)
     domain = models.CharField(max_length=1, choices=DOMAINS)
@@ -26,7 +36,7 @@ class Organism(models.Model):
 
 class Protein(models.Model):
     """ A protein is a UniProtKB sequence identified by the `accession`
-        and the `entry_name`. It has a `description`, 
+        and the `entry_name`. It has a `description`,
         the `gene` name, the `taxon_id` it belongs to.
         It belongs to a `database` (either '0', SwissProt, or
         '1', TremBL), and to a certain `release`. It also
@@ -37,11 +47,13 @@ class Protein(models.Model):
     accession = models.CharField(max_length=30)
     entry_name = models.CharField(max_length=30, default="")
     description = models.TextField()
-#    gene = models.CharField(max_length=50, db_index=True) 
+#    gene = models.CharField(max_length=50, db_index=True)
     database = models.PositiveIntegerField(choices=DATABASES, default=0)
     taxon_id = models.ForeignKey(Organism, on_delete=models.CASCADE)
     has_experimental_interactions = models.BooleanField(default=False)
-    goa_assigned_goterms = models.ManyToManyField(GOTerm, through='GOAFunctionalAssignment')
+    goa_assigned_goterms = models.ManyToManyField(
+        GOTerm,
+        through='GOAFunctionalAssignment')
 
     def __unicode__(self):
         return self.accession
@@ -52,12 +64,15 @@ class Protein(models.Model):
             second is the evalue and the third one is the percent
             identity.
         """
-        return ((h.target, h.evalue, h.percent_identity) for h in self.homologyrelation_set.iterator())
+        return ((h.target,
+                 h.evalue,
+                 h.percent_identity)
+                for h in self.homologyrelation_set.iterator())
 
 
 class GOAFunctionalAssignment(models.Model):
     """ A `GOAFunctionalAssignment` is a mapping between
-        a `goterm` and a `protein`  
+        a `goterm` and a `protein`
     """
     goterm = models.ForeignKey(GOTerm, on_delete=models.CASCADE)
     protein = models.ForeignKey(Protein, on_delete=models.CASCADE)
@@ -66,10 +81,10 @@ class GOAFunctionalAssignment(models.Model):
 class HomologyRelation(models.Model):
     """ A homology relation is defined as a BLAST
         hit from the `source` protein to the `target`
-        protein, with a certain `evalue` and a 
+        protein, with a certain `evalue` and a
         `percent_identity`.
     """
-    source = models.ForeignKey(Protein, 
+    source = models.ForeignKey(Protein,
                                related_name='homologyrelation_source_set',
                                on_delete=models.CASCADE)
     target = models.ForeignKey(Protein,
@@ -90,10 +105,16 @@ class ProteinInteraction(models.Model):
     INTERACTION_TYPES = (
         (0, 'Experimental Protein Interaction'),
         (1, 'Predicted Protein Interaction'))
-    first = models.ForeignKey(Protein, related_name='prots_%(class)s_first_set', on_delete=models.CASCADE)
-    second = models.ForeignKey(Protein, related_name='prots_%(class)s_second_set', on_delete=models.CASCADE)
-    taxon_id = models.ForeignKey(Organism, on_delete=models.CASCADE)
-    interaction_type = models.IntegerField(choices=INTERACTION_TYPES, default=0)
+    first = models.ForeignKey(Protein,
+                              related_name='prots_%(class)s_first_set',
+                              on_delete=models.CASCADE)
+    second = models.ForeignKey(Protein,
+                               related_name='prots_%(class)s_second_set',
+                               on_delete=models.CASCADE)
+    taxon_id = models.ForeignKey(Organism,
+                                 on_delete=models.CASCADE)
+    interaction_type = models.IntegerField(choices=INTERACTION_TYPES,
+                                           default=0)
 
     class Meta:
         abstract = True
@@ -107,6 +128,7 @@ class ExperimentalProteinInteraction(ProteinInteraction):
     """
     icrep_id = models.IntegerField()
 
+
 class PredictedProteinInteraction(ProteinInteraction):
     """ A `PredictedProteinInteraction` is an interaction
         which comes from two associated homology relations,
@@ -118,12 +140,14 @@ class PredictedProteinInteraction(ProteinInteraction):
         interologs. A link to the `origin_experimental`
         interaction is also stored.
     """
-    first_homology = models.ForeignKey(HomologyRelation, 
-                                       related_name='predictedinteraction_first_homology_set',
-                                       on_delete=models.CASCADE)
-    second_homology = models.ForeignKey(HomologyRelation, 
-                                        related_name='predictedinteraction_second_homology_set',
-                                        on_delete=models.CASCADE)
+    first_homology = models.ForeignKey(
+        HomologyRelation,
+        related_name='predictedinteraction_first_homology_set',
+        on_delete=models.CASCADE)
+    second_homology = models.ForeignKey(
+        HomologyRelation,
+        related_name='predictedinteraction_second_homology_set',
+        on_delete=models.CASCADE)
     quality = models.FloatField()
     is_best = models.BooleanField(default=False)
     origin_experimental = models.ForeignKey(ExperimentalProteinInteraction,
@@ -136,6 +160,7 @@ class MITerm(models.Model):
     mi_id = models.CharField(max_length=7)
     description = models.TextField()
 
+
 class Evidence(models.Model):
     """ `Evidence` is a triplet of integers representing
         data about a particular experiment. First, the
@@ -144,16 +169,19 @@ class Evidence(models.Model):
         terms in the Molecular interaction Ontology.
     """
     pubmed_id = models.IntegerField()
-    #detection_method = models.IntegerField()
-    #interaction_type = models.IntegerField()
-    detection_method = models.ForeignKey(MITerm,
-                                         related_name="evidence_detection_method",
-                                         on_delete=models.CASCADE)
-    interaction_type = models.ForeignKey(MITerm,
-                                         related_name="evidence_interaction_type",
-                                         on_delete=models.CASCADE)
-    interaction_supported = models.ForeignKey(ExperimentalProteinInteraction,
-                                              on_delete=models.CASCADE)
+    # detection_method = models.IntegerField()
+    # interaction_type = models.IntegerField()
+    detection_method = models.ForeignKey(
+        MITerm,
+        related_name="evidence_detection_method",
+        on_delete=models.CASCADE)
+    interaction_type = models.ForeignKey(
+        MITerm,
+        related_name="evidence_interaction_type",
+        on_delete=models.CASCADE)
+    interaction_supported = models.ForeignKey(
+        ExperimentalProteinInteraction,
+        on_delete=models.CASCADE)
 
 
 class PredictedComplex(models.Model):
@@ -175,13 +203,14 @@ class PredictedComplex(models.Model):
 
 
 class ComplexFunctionalAssignment(models.Model):
-    """ Represents a functional assignment to a predicted 
+    """ Represents a functional assignment to a predicted
         protein `complex` obtained through over-representation
         analysis of the individual `GOAFunctionalAssignment`
         of each individual protein and containing a `pvalue`
-        and a goterm.    
+        and a goterm.
     """
-    goterm = models.ForeignKey(GOTerm, on_delete=models.CASCADE)
-    protein_complex = models.ForeignKey(PredictedComplex, on_delete=models.CASCADE)
+    goterm = models.ForeignKey(GOTerm,
+                               on_delete=models.CASCADE)
+    protein_complex = models.ForeignKey(PredictedComplex,
+                                        on_delete=models.CASCADE)
     pvalue = models.FloatField(default=0.0)
-
