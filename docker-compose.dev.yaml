@@ -32,7 +32,7 @@ services:
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
       - proteobooster-db_data:/var/lib/postgresql/data/
-      - ./proteobooster.dump.sql:/docker-entrypoint-initdb.d/init.sql
+        #- ./proteobooster.dump.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env.proteobooster.dev.db
     networks:

@@ -23,15 +23,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-8fsh0u1-09t!$@i(3_20ax^zx_7j_0ykbibh16oj@0pqcv8ng0'
 SECRET_KEY = os.environ.get(
-    "ICREP_SECRET_KEY",
+    "PROTEOBOOSTER_SECRET_KEY",
     'django-insecure-8fsh0u1-09t!$@i(3_20ax^zx_7j_0ykbibh16oj@0pqcv8ng0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("ICREP_DEBUG", default=0))
+DEBUG = int(os.environ.get("PROTEOBOOSTER_DEBUG", default=0))
 
 ALLOWED_HOSTS = []
-ALLOWED_HOSTS = os.environ.get("ICREP_ALLOWED_HOSTS", default="").split(" ")
-CSRF_TRUSTED_ORIGINS = os.environ.get("ICREP_CSRF_TRUSTED_ORIGINS", default="").split(" ")
+ALLOWED_HOSTS = os.environ.get("PROTEOBOOSTER_ALLOWED_HOSTS", default="").split(" ")
+CSRF_TRUSTED_ORIGINS = os.environ.get("PROTEOBOOSTER_CSRF_TRUSTED_ORIGINS", default="").split(" ")
 
 
 # Application definition
@@ -133,12 +133,12 @@ USE_TZ = True
 
 # USE_X_FORWARDED_HOST = True
 # 
-FORCE_SCRIPT_NAME = os.environ.get("ICREP_FORCE_SCRIPT_NAME", default="/icrep/")
+FORCE_SCRIPT_NAME = os.environ.get("PROTEOBOOSTER_FORCE_SCRIPT_NAME", default="/icrep/")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = os.environ.get("ICREP_STATIC_URL", default='/icrep_static/')
+STATIC_URL = os.environ.get("PROTEOBOOSTER_STATIC_URL", default='/proteobooster_static/')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
