@@ -7,6 +7,7 @@ log = logging.getLogger("main")
 
 STATIC_PATH = settings.STATIC_ROOT / 'downloads'
 
+
 def write_complexes_cache() -> None:
 
     def write_complexes(qs, fn):
@@ -30,6 +31,7 @@ def write_complexes_cache() -> None:
     complexes_no_trembl = PredictedComplex.objects.filter(
         proteins__database=0).order_by("-size")
     write_complexes(complexes_no_trembl, "complexes-no-trembl.csv")
+
 
 def write_interaction_cache(organism: Organism, cutoff: int) -> None:
 
@@ -55,6 +57,7 @@ def write_interaction_cache(organism: Organism, cutoff: int) -> None:
     log.info(f"Creating interaction cache for {organism.name} (no trembl)")
     interactions = ExperimentalProteinInteraction.objects.filter(taxon_id=organism, first__database=0, second__database=0).order_by("first__accession")
     write_interactions(interactions, f"interactions-{organism.taxon_id}-no-trembl.csv")
+
 
 def write_interolog_cache(organism: Organism, cutoff: int) -> None:
 
@@ -83,6 +86,7 @@ def write_interolog_cache(organism: Organism, cutoff: int) -> None:
     interologs = PredictedProteinInteraction.objects.filter(taxon_id=organism, first__database=0, second__database=0).order_by("-quality")
     write_interologs(interologs, f"interologs-{organism.taxon_id}-no-trembl.csv")
 
+
 class Command(BaseCommand):
     args = "interactions_cutoff interologs_cutoff"
     
@@ -91,10 +95,10 @@ class Command(BaseCommand):
         parser.add_argument("interologs_cutoff")
         
     def handle(self, *args, **options):
-#        print("args", args)
-#        if len(args) != 3:
-#            print "ARGUMENTS: ", Command.args
-#            raise CommandError("Argument error")
+        # print("args", args)
+        # if len(args) != 3:
+        #     print "ARGUMENTS: ", Command.args
+        #     raise CommandError("Argument error")
 
         interactions_cutoff, interologs_cutoff = options["interactions_cutoff"], options["interologs_cutoff"]
 

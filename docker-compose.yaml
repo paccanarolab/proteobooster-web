@@ -1,21 +1,21 @@
 version: "3.9"
 services:
   # corex
-  proteoboost:
+  proteobooster:
     build: 
-      context: ./proteoboostweb
+      context: ./proteoboosterweb
       dockerfile: Dockerfile.prod
-    command: gunicorn proteoboostweb.wsgi:application --bind 0.0.0.0:80 -w 4
+    command: gunicorn proteoboosterweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
-      - static_proteoboost:/home/app/proteoboost/staticfiles
+      - static_proteobooster:/home/app/proteobooster/staticfiles
     env_file: 
-      - ./.env.proteoboost.prod
+      - ./.env.proteobooster.prod
     networks:
-      - proteoboost
+      - proteobooster
     depends_on:
-      proteoboost-db:
+      proteobooster-db:
         condition: service_healthy
-  proteoboost-db:
+  proteobooster-db:
     image: postgres:13.0-alpine
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -23,29 +23,29 @@ services:
       timeout: 5s
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
-      - proteoboost-db_data:/var/lib/postgresql/data/
-      - ./databases/proteoboost.sql:/docker-entrypoint-initdb.d/init.sql
+      - proteobooster-db_data:/var/lib/postgresql/data/
+      - ./databases/proteobooster.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - ./.env.proteoboost.prod.db
+      - ./.env.proteobooster.prod.db
     networks:
-      - proteoboost
+      - proteobooster
 
   # reverse proxy
   proxy:
     build: ./reverse-proxy
     volumes:
-      - static_proteoboost:/home/app/proteoboost/staticfiles
+      - static_proteobooster:/home/app/proteobooster/staticfiles
     networks:
-      - proteoboost
+      - proteobooster
     ports:
       - 80:80
     depends_on:
-      - proteoboost
+      - proteobooster
 networks:
-  proteoboost:
-    name: proteoboost
+  proteobooster:
+    name: proteobooster
     external: false
 
 volumes:
-  proteoboost-db_data:
-  static_proteoboost:
+  proteobooster-db_data:
+  static_proteobooster:

@@ -1,29 +1,29 @@
 version: "3.9"
 services:
   # corex
-  proteoboost:
-    image: torresmateo/proteoboost:dev
-    # build: 
-    #   context: ./proteoboostweb
-    #   dockerfile: Dockerfile.prod
-    command: gunicorn proteoboostweb.wsgi:application --bind 0.0.0.0:80 -w 4
+  proteobooster:
+    #image: torresmateo/proteobooster:dev
+    build: 
+      context: ./proteobooster
+      dockerfile: Dockerfile.prod
+    command: gunicorn proteoboosterweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
-      #- static_proteoboost:/home/app/proteoboost/staticfiles
-      - ./proteoboostweb/base/static:/home/app/proteoboost/staticfiles
-      - ./proteoboostweb/base:/home/app/proteoboost/base
-      - ./proteoboostweb/proteoboostweb:/home/app/proteoboost/proteoboostweb
+      #- static_proteobooster:/home/app/proteobooster/staticfiles
+      - ./proteobooster/base/static:/home/app/proteobooster/staticfiles
+      - ./proteobooster/base:/home/app/proteobooster/base
+      - ./proteobooster/proteoboosterweb:/home/app/proteobooster/proteoboosterweb
     # uncomment these to access the app directly for test purposes, 
     # but expect everything to be broken.
     ports:
       - 8080:80
     env_file: 
-      - ./.env.proteoboost.prod
+      - ./.env.proteobooster.dev
     networks:
-      - proteoboost
+      - proteobooster
     depends_on:
-      proteoboost-db:
+      proteobooster-db:
         condition: service_healthy
-  proteoboost-db:
+  proteobooster-db:
     image: postgres:13.0-alpine
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -31,12 +31,12 @@ services:
       timeout: 5s
       retries: 10 # this might seem too many retries, but there is data being copied...
     volumes:
-      - proteoboost-db_data:/var/lib/postgresql/data/
-      - ./proteoboost.dump.sql:/docker-entrypoint-initdb.d/init.sql
+      - proteobooster-db_data:/var/lib/postgresql/data/
+      - ./proteobooster.dump.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - ./.env.proteoboost.prod.db
+      - ./.env.proteobooster.dev.db
     networks:
-      - proteoboost
+      - proteobooster
   pgadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
@@ -47,25 +47,25 @@ services:
     ports:
       - "5050:80"
     networks:
-      - proteoboost
+      - proteobooster
   # reverse proxy
   proxy:
     build: ./reverse-proxy
     volumes:
       - ./reverse-proxy/default.conf:/etc/nginx/conf.d/nginx.conf
-        #- static_proteoboost:/home/app/proteoboost/staticfiles
-      - ./proteoboostweb/base/static:/home/app/proteoboost/staticfiles
+        #- static_proteobooster:/home/app/proteobooster/staticfiles
+      - ./proteobooster/base/static:/home/app/proteobooster/staticfiles
     networks:
-      - proteoboost
+      - proteobooster
     ports:
       - 80:80
     depends_on:
-      - proteoboost
+      - proteobooster
 networks:
-  proteoboost:
-    name: proteoboost
+  proteobooster:
+    name: proteobooster
     external: false
 
 volumes:
-  proteoboost-db_data:
-  static_proteoboost:
+  proteobooster-db_data:
+  static_proteobooster:
