@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'icrepweb.urls'
+ROOT_URLCONF = 'proteoboosterweb.urls'
 
 TEMPLATES = [
     {
@@ -63,12 +63,12 @@ TEMPLATES = [
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
-            'environment': 'icrepweb.jinja2.environment',
+            'environment': 'proteoboosterweb.jinja2.environment',
         }
     },
 ]
 
-WSGI_APPLICATION = 'icrepweb.wsgi.application'
+WSGI_APPLICATION = 'proteoboosterweb.wsgi.application'
 
 
 # Database
@@ -133,7 +133,7 @@ USE_TZ = True
 
 # USE_X_FORWARDED_HOST = True
 # 
-FORCE_SCRIPT_NAME = os.environ.get("PROTEOBOOSTER_FORCE_SCRIPT_NAME", default="/icrep/")
+FORCE_SCRIPT_NAME = os.environ.get("PROTEOBOOSTER_FORCE_SCRIPT_NAME", default="/proteobooster/")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
