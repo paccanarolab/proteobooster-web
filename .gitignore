@@ -1,5 +1,8 @@
 # environment files for production
 
+# Apple files
+**/.DS_Store
+
 .env*prod*
 
 # tar archives
