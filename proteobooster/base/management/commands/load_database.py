@@ -5,7 +5,6 @@ from base.models import (GOTerm, MITerm, Organism, Protein,
                          PredictedProteinInteraction)
 import logging
 
-from base.views import organisms
 
 log = logging.getLogger("main")
 
@@ -135,7 +134,7 @@ def insert_interactions(interactions):
 def insert_evidence(evidence):
     header_read = False
     bulk_buffer = []
-    with open(interactions) as infile:
+    with open(evidence) as infile:
         for line in infile:
             if not header_read:
                 header_read = True
@@ -187,12 +186,12 @@ def run(obo_file: str, mi_ontology: str, organisms_metadata: str,
     #insert_proteins(proteins_metadata)
     #print(f"functional_assignment = {functional_assignment}")
     #insert_go_annotations(functional_assignment)
-    print(f"homologs = {homologs}")
-    insert_homologs(homologs)
-    print(f"interactions = {interactions}")
-    insert_interactions(interactions)
-    print(f"evidence = {evidence}")
-    insert_evidence(evidence)
+    #print(f"homologs = {homologs}")
+    #insert_homologs(homologs)
+    #print(f"interactions = {interactions}")
+    #insert_interactions(interactions)
+    #print(f"evidence = {evidence}")
+    #insert_evidence(evidence)
     print(f"interologs = {interologs}")
     print(f"complexes = {complexes}")
     print(f"complexes_interactions = {complexes_interactions}")
