@@ -2,10 +2,10 @@ version: "3.9"
 services:
   # corex
   proteobooster:
-    #image: torresmateo/proteobooster:dev
-    build: 
-      context: ./proteobooster
-      dockerfile: Dockerfile.prod
+    image: torresmateo/proteobooster:dev
+      # build: 
+      #   context: ./proteobooster
+      #   dockerfile: Dockerfile.prod
     command: gunicorn proteoboosterweb.wsgi:application --bind 0.0.0.0:80 -w 4
     volumes:
       #- static_proteobooster:/home/app/proteobooster/staticfiles

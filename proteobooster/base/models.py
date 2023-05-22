@@ -168,7 +168,7 @@ class Evidence(models.Model):
         `interaction_type` and the `detection_type`, both
         terms in the Molecular interaction Ontology.
     """
-    pubmed_id = models.IntegerField()
+    pubmed_id = models.TextField()
     # detection_method = models.IntegerField()
     # interaction_type = models.IntegerField()
     detection_method = models.ForeignKey(

@@ -30,14 +30,16 @@ SECRET_KEY = os.environ.get(
 DEBUG = int(os.environ.get("PROTEOBOOSTER_DEBUG", default=0))
 
 ALLOWED_HOSTS = []
-ALLOWED_HOSTS = os.environ.get("PROTEOBOOSTER_ALLOWED_HOSTS", default="").split(" ")
-CSRF_TRUSTED_ORIGINS = os.environ.get("PROTEOBOOSTER_CSRF_TRUSTED_ORIGINS", default="").split(" ")
+ALLOWED_HOSTS = os.environ.get("PROTEOBOOSTER_ALLOWED_HOSTS",
+                               default="").split(" ")
+CSRF_TRUSTED_ORIGINS = os.environ.get("PROTEOBOOSTER_CSRF_TRUSTED_ORIGINS",
+                                      default="").split(" ")
 
 
 # Application definition
 
 INSTALLED_APPS = [
-	"base.apps.BaseConfig",
+    "base.apps.BaseConfig",
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -106,10 +108,17 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        "verbose": {
+            "format": "{asctime} - {name} - {levelname} - {message}",
+            "style": "{"
+        }
+    },
     'handlers': {
         'log_to_stdout': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
         },
     },
     'loggers': {
@@ -132,13 +141,14 @@ USE_I18N = True
 USE_TZ = True
 
 # USE_X_FORWARDED_HOST = True
-# 
-FORCE_SCRIPT_NAME = os.environ.get("PROTEOBOOSTER_FORCE_SCRIPT_NAME", default="/proteobooster/")
+FORCE_SCRIPT_NAME = os.environ.get("PROTEOBOOSTER_FORCE_SCRIPT_NAME",
+                                   default="/proteobooster/")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = os.environ.get("PROTEOBOOSTER_STATIC_URL", default='/proteobooster_static/')
+STATIC_URL = os.environ.get("PROTEOBOOSTER_STATIC_URL",
+                            default='/proteobooster_static/')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
