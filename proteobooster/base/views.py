@@ -20,7 +20,7 @@ DEFAULTS = {
     "include_trembl": True
 }
 
-INSTANCE_ORG_TAX_ID = 7955
+INSTANCE_ORG_TAX_ID = 6
 
 logger = logging.getLogger(__name__)
 
@@ -100,22 +100,26 @@ def home(request):
     context["count_proteins"] = protein_qs.count()
     context["count_interactions"] = interactions_qs.count()
     context["count_interologs"] = interolog_qs.count()
-    context["organism"] = Organism.objects.get(taxon_id=INSTANCE_ORG_TAX_ID)
+    context["organism"] = Organism.objects.get(pk=INSTANCE_ORG_TAX_ID)
 
     # source counts
     context["count_organisms"] = Organism.objects.count() - 1
     if include_trembl:
         context["count_source_proteins"] = Protein.objects.filter(
             ~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count()
-        context["count_source_interactions"] = (ExperimentalProteinInteraction
-                                                .objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count())
+        context["count_source_interactions"] = (
+            ExperimentalProteinInteraction.objects.filter(
+                ~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count())
     else:
         context["count_source_proteins"] = Protein.objects.filter(
             ~Q(taxon_id=INSTANCE_ORG_TAX_ID) & Q(database=0)).count()
-        context["count_source_interactions"] = (ExperimentalProteinInteraction
-                                                .objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID),
-                                                                first__database=0,
-                                                                second__database=0).count())
+        context["count_source_interactions"] = (
+            ExperimentalProteinInteraction.objects
+            .filter(
+                ~Q(taxon_id=INSTANCE_ORG_TAX_ID),
+                first__database=0,
+                second__database=0)
+            .count())
 
     if request.method == "POST":
         home_form = HomePageForm(request.POST)
@@ -286,7 +290,7 @@ def organisms(request):
     context = {}
     context['include_trembl'] = request.GET.get(
         'include_trembl', 'true') != 'false'
-    context["organisms"] = Organism.objects.filter(~Q(taxon_id=INSTANCE_ORG_TAX_ID)).annotate(
+    context["organisms"] = Organism.objects.filter(~Q(pk=INSTANCE_ORG_TAX_ID)).annotate(
         num_proteins=Count('protein')).order_by("-num_proteins").all()
     context["domain_dict"] = {k: v for k, v in Organism.DOMAINS}
     return render(request, "all_organisms.html", context)
@@ -297,10 +301,8 @@ def interaction(request, first_accession, second_accession):
     data['tooltips'] = TOOLTIPS
     first = get_object_or_404(Protein, accession=first_accession)
     second = get_object_or_404(Protein, accession=second_accession)
-    experimental_interaction = get_object_or_404(ExperimentalProteinInteraction,
-                                                 (Q(first=first) &
-                                                  Q(second=second))
-                                                 )
+    experimental_interaction = get_object_or_404(
+        ExperimentalProteinInteraction, (Q(first=first) & Q(second=second)))
     evidence_set = experimental_interaction.evidence_set.all()[:10]
     evidence_list = list(evidence_set)
     data['evidence_count'] = experimental_interaction.evidence_set.count()
@@ -354,10 +356,11 @@ def interolog(request, first_accession, second_accession):
     data['tooltips'] = TOOLTIPS
     first = get_object_or_404(Protein, accession=first_accession)
     second = get_object_or_404(Protein, accession=second_accession)
-    inferred_interolog = get_object_or_404(PredictedProteinInteraction,
-                                           (Q(first=first) & Q(second=second)) |
-                                           (Q(second=first) & Q(first=second))
-                                           )
+    inferred_interolog = get_object_or_404(
+        PredictedProteinInteraction,
+        ((Q(first=first) & Q(second=second))
+         | (Q(second=first) & Q(first=second)))
+        & Q(is_best=True))
     source_experimental_interaction_list = []
     sibling_inferred_interolog_list = []
 

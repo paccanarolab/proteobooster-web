@@ -266,29 +266,29 @@ def run(obo_file: str, mi_ontology: str, organisms_metadata: str,
         interactions: str, evidence: str, interologs: str, complexes: str,
         complexes_proteins: str, complexes_interactions: str,
         complexes_interologs: str, overrep: str) -> None:
-    # log.info(f"obo_file = {obo_file}")
-    # insert_goterm_table(obo_file)
+    log.info(f"obo_file = {obo_file}")
+    insert_goterm_table(obo_file)
 
-    # log.info(f"mi_ontology = {mi_ontology}")
-    # insert_mi_ontology(mi_ontology)
+    log.info(f"mi_ontology = {mi_ontology}")
+    insert_mi_ontology(mi_ontology)
 
-    # log.info(f"organisms_metadata = {organisms_metadata}")
-    # insert_organism(organisms_metadata)
+    log.info(f"organisms_metadata = {organisms_metadata}")
+    insert_organism(organisms_metadata)
 
-    # log.info(f"proteins_metadata = {proteins_metadata}")
-    # insert_proteins(proteins_metadata)
+    log.info(f"proteins_metadata = {proteins_metadata}")
+    insert_proteins(proteins_metadata)
 
-    # log.info(f"functional_assignment = {functional_assignment}")
-    # insert_go_annotations(functional_assignment)
+    log.info(f"functional_assignment = {functional_assignment}")
+    insert_go_annotations(functional_assignment)
 
-    # log.info(f"homologs = {homologs}")
-    # insert_homologs(homologs)
+    log.info(f"homologs = {homologs}")
+    insert_homologs(homologs)
 
-    # log.info(f"interactions = {interactions}")
-    # insert_interactions(interactions)
+    log.info(f"interactions = {interactions}")
+    insert_interactions(interactions)
 
-    # log.info(f"evidence = {evidence}")
-    # insert_evidence(evidence)
+    log.info(f"evidence = {evidence}")
+    insert_evidence(evidence)
 
     log.info(f"interologs = {interologs}")
     insert_interologs(interologs)

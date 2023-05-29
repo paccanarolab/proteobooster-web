@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from base.models import *
+from base.models import (PredictedProteinInteraction, PredictedComplex,
+                         Organism, ExperimentalProteinInteraction)
 import logging
 
 log = logging.getLogger("main")
@@ -13,13 +14,14 @@ def write_complexes_cache() -> None:
     def write_complexes(qs, fn):
         with open(STATIC_PATH / fn, "w") as f:
             f.write("size,density,quality,pvalue,members\n")
-            for i in complexes:
+            for i in qs:
                 f.write(",".join([
                     str(i.size),
                     str(i.density),
                     str(i.quality),
                     str(i.pvalue),
-                    ";".join(p.accession for p in i.proteins.order_by("accession"))
+                    ";".join(
+                        p.accession for p in i.proteins.order_by("accession"))
                 ]))
                 f.write("\n")
 
@@ -37,7 +39,8 @@ def write_interaction_cache(organism: Organism, cutoff: int) -> None:
 
     def write_interactions(qs, fn):
         with open(STATIC_PATH / fn, "w") as f:
-            f.write("protein_1,protein_2,pubmed_id,detection_method,interaction_type\n")
+            f.write("protein_1,protein_2,pubmed_id,"
+                    "detection_method,interaction_type\n")
             for i in qs:
                 evs = i.evidence_set.all()
                 for e in evs:
@@ -51,19 +54,27 @@ def write_interaction_cache(organism: Organism, cutoff: int) -> None:
                     f.write("\n")
 
     log.info(f"Creating interaction cache for {organism.name}")
-    interactions = ExperimentalProteinInteraction.objects.filter(taxon_id=organism).order_by("first__accession")
+    interactions = (ExperimentalProteinInteraction.objects
+                    .filter(taxon_id=organism).order_by("first__accession"))
     write_interactions(interactions, f"interactions-{organism.taxon_id}.csv")
 
     log.info(f"Creating interaction cache for {organism.name} (no trembl)")
-    interactions = ExperimentalProteinInteraction.objects.filter(taxon_id=organism, first__database=0, second__database=0).order_by("first__accession")
-    write_interactions(interactions, f"interactions-{organism.taxon_id}-no-trembl.csv")
+    interactions = (ExperimentalProteinInteraction.objects
+                    .filter(taxon_id=organism,
+                            first__database=0,
+                            second__database=0)
+                    .order_by("first__accession"))
+    write_interactions(interactions,
+                       f"interactions-{organism.taxon_id}-no-trembl.csv")
 
 
 def write_interolog_cache(organism: Organism, cutoff: int) -> None:
 
     def write_interologs(qs, fn):
         with open(STATIC_PATH / fn, "w") as f:
-            f.write("protein_1,protein_2,source_1,source_2,quality,homology_1_evalue,homology_2_evalue,homology_1_identity,homology_2_identity\n")
+            f.write("protein_1,protein_2,source_1,source_2,quality,"
+                    "homology_1_evalue,homology_2_evalue,"
+                    "homology_1_identity,homology_2_identity\n")
             for i in qs:
                 f.write(",".join([
                     i.first.accession,
@@ -79,21 +90,26 @@ def write_interolog_cache(organism: Organism, cutoff: int) -> None:
                 f.write("\n")
 
     log.info(f"Creating interolog cache for {organism.name}")
-    interologs = PredictedProteinInteraction.objects.filter(taxon_id=organism).order_by("-quality")
+    interologs = PredictedProteinInteraction.objects.filter(
+        taxon_id=organism).order_by("-quality")
     write_interologs(interologs, f"interologs-{organism.taxon_id}.csv")
 
     log.info(f"Creating interolog cache for {organism.name} (no trembl)")
-    interologs = PredictedProteinInteraction.objects.filter(taxon_id=organism, first__database=0, second__database=0).order_by("-quality")
-    write_interologs(interologs, f"interologs-{organism.taxon_id}-no-trembl.csv")
+    interologs = PredictedProteinInteraction.objects.filter(
+            taxon_id=organism,
+            first__database=0,
+            second__database=0).order_by("-quality")
+    write_interologs(interologs,
+                     f"interologs-{organism.taxon_id}-no-trembl.csv")
 
 
 class Command(BaseCommand):
     args = "interactions_cutoff interologs_cutoff"
-    
+
     def add_arguments(self, parser):
         parser.add_argument("interactions_cutoff")
         parser.add_argument("interologs_cutoff")
-        
+
     def handle(self, *args, **options):
         # print("args", args)
         # if len(args) != 3:
