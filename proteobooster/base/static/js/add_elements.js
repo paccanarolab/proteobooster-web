@@ -11,7 +11,7 @@ var addExperimentalInteractions = function(containerSelector, data, parentAccess
         $(containerSelector).append(
             `<a href="${getUrl('interaction', {first:item.first, second:item.second})}"
                 class="${elementClass}">
-                ${includeOrgName? `<div class="interaction-organism_name">${item.organism_name}</div>`:''}
+                ${includeOrgName? `<div class="interaction-name">${item.organism_name}</div>`:''}
                 ${includeQuality? `<div class="interaction-quality">${item.quality}</div>`:''}
                 <div class="interaction-interactor">${item.first} - ${item.first_description}</div>
                 <div class="interaction-interactor">${item.second} - ${item.second_description}</div>

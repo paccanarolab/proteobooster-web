@@ -17,7 +17,7 @@ var PROTEIN_ERROR = function(xhr, stat, err){};
 var EXP_INTERACTION_SUCCESS = function(data, stat, xhr){
     addExperimentalInteractions('#interactions-container', data, null, true, true);
     exp_interaction_offset += data.length;
-    removeButtonIfNotRelevant('interactinos', data);
+    removeButtonIfNotRelevant('interactions', data);
 };
 var EXP_INTERACTION_ERROR = function(xhr, stat, err){};
 var GO_TERM_SUCCESS = function(data, stat, xhr){};

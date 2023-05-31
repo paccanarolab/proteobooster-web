@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django import forms
 from django.db.models import Q, Count
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.conf import settings 
 from .models import (Organism, Protein, ExperimentalProteinInteraction,
                      PredictedProteinInteraction, PredictedComplex)
 import json
@@ -20,7 +21,7 @@ DEFAULTS = {
     "include_trembl": True
 }
 
-INSTANCE_ORG_TAX_ID = 6
+INSTANCE_ORG_ID = settings.PROTEOBOOSTER_ORG_ID
 
 logger = logging.getLogger(__name__)
 
@@ -84,11 +85,11 @@ def home(request):
     context['include_trembl'] = include_trembl
     complex_qs = PredictedComplex.objects.filter(
         size__lte=LIMITS["COMPLEX_MAX_SIZE"])
-    protein_qs = Protein.objects.filter(taxon_id=INSTANCE_ORG_TAX_ID)
+    protein_qs = Protein.objects.filter(taxon_id=INSTANCE_ORG_ID)
     interactions_qs = ExperimentalProteinInteraction.objects.filter(
-        taxon_id=INSTANCE_ORG_TAX_ID)
+        taxon_id=INSTANCE_ORG_ID)
     interolog_qs = PredictedProteinInteraction.objects.filter(
-        taxon_id=INSTANCE_ORG_TAX_ID)
+        taxon_id=INSTANCE_ORG_ID)
     if not include_trembl:
         complex_qs = complex_qs.filter(proteins__database=0)
         protein_qs = protein_qs.filter(database=0)
@@ -100,23 +101,23 @@ def home(request):
     context["count_proteins"] = protein_qs.count()
     context["count_interactions"] = interactions_qs.count()
     context["count_interologs"] = interolog_qs.count()
-    context["organism"] = Organism.objects.get(pk=INSTANCE_ORG_TAX_ID)
+    context["organism"] = Organism.objects.get(pk=INSTANCE_ORG_ID)
 
     # source counts
     context["count_organisms"] = Organism.objects.count() - 1
     if include_trembl:
         context["count_source_proteins"] = Protein.objects.filter(
-            ~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count()
+            ~Q(taxon_id=INSTANCE_ORG_ID)).count()
         context["count_source_interactions"] = (
             ExperimentalProteinInteraction.objects.filter(
-                ~Q(taxon_id=INSTANCE_ORG_TAX_ID)).count())
+                ~Q(taxon_id=INSTANCE_ORG_ID)).count())
     else:
         context["count_source_proteins"] = Protein.objects.filter(
-            ~Q(taxon_id=INSTANCE_ORG_TAX_ID) & Q(database=0)).count()
+            ~Q(taxon_id=INSTANCE_ORG_ID) & Q(database=0)).count()
         context["count_source_interactions"] = (
             ExperimentalProteinInteraction.objects
             .filter(
-                ~Q(taxon_id=INSTANCE_ORG_TAX_ID),
+                ~Q(taxon_id=INSTANCE_ORG_ID),
                 first__database=0,
                 second__database=0)
             .count())
@@ -273,7 +274,7 @@ def organism(request, organism_taxon_id):
     data['load_more_interologs'] = data['interolog_count'] > LIMITS["MAX_ITEMS_LOAD"]
 
     # complexes
-    if organism.taxon_id == INSTANCE_ORG_TAX_ID:
+    if organism.taxon_id == INSTANCE_ORG_ID:
         complex_qs = PredictedComplex.objects.filter(
             size__lte=LIMITS["COMPLEX_MAX_SIZE"])
         if not include_trembl:
@@ -290,7 +291,7 @@ def organisms(request):
     context = {}
     context['include_trembl'] = request.GET.get(
         'include_trembl', 'true') != 'false'
-    context["organisms"] = Organism.objects.filter(~Q(pk=INSTANCE_ORG_TAX_ID)).annotate(
+    context["organisms"] = Organism.objects.filter(~Q(pk=INSTANCE_ORG_ID)).annotate(
         num_proteins=Count('protein')).order_by("-num_proteins").all()
     context["domain_dict"] = {k: v for k, v in Organism.DOMAINS}
     return render(request, "all_organisms.html", context)
@@ -361,27 +362,30 @@ def interolog(request, first_accession, second_accession):
         ((Q(first=first) & Q(second=second))
          | (Q(second=first) & Q(first=second)))
         & Q(is_best=True))
-    source_experimental_interaction_list = []
-    sibling_inferred_interolog_list = []
+    source_exp_intera_set = set()
 
-    inferred_interolog_with_same_interactors_set = PredictedProteinInteraction.objects.filter(
-        (Q(first=inferred_interolog.first) & Q(second=inferred_interolog.second)) |
-        (Q(second=inferred_interolog.first) & Q(first=inferred_interolog.second))
-    ).order_by('-quality')[:10]
+    interologs_with_same_interactors_set = (
+        PredictedProteinInteraction.objects.filter(
+            (Q(first=inferred_interolog.first)
+             & Q(second=inferred_interolog.second))
+            | (Q(second=inferred_interolog.first)
+               & Q(first=inferred_interolog.second))
+            ).order_by('-quality')[:10])
 
-    data['interaction_count'] = PredictedProteinInteraction.objects.filter((Q(first=inferred_interolog.first) & Q(
-        second=inferred_interolog.second)) | (Q(second=inferred_interolog.first) & Q(first=inferred_interolog.second))).count()
+    data['interaction_count'] = PredictedProteinInteraction.objects.filter(
+        (Q(first=inferred_interolog.first)
+         & Q(second=inferred_interolog.second))
+        | (Q(second=inferred_interolog.first)
+           & Q(first=inferred_interolog.second))).count()
     data['load_more_interactions'] = data['interaction_count'] > 10
 
     # TODO: ask Alfonso whether sibling interologs are interesting
-    for inferred_interolog_with_same_interactors in inferred_interolog_with_same_interactors_set:
-        source_experimental_interaction = inferred_interolog_with_same_interactors.origin_experimental
-        source_experimental_interaction_list.append([
+    # wsi stands for "with same interactor"
+    for interolog_wsi in interologs_with_same_interactors_set:
+        source_experimental_interaction = interolog_wsi.origin_experimental
+        source_exp_intera_set.add((
             source_experimental_interaction,
-            inferred_interolog_with_same_interactors.quality])
-        # sibling_inferred_interolog_set = source_experimental_interaction.predictedproteininteraction_set.all()
-        # for sibling_inferred_interolog in sibling_inferred_interolog_set:
-        #    sibling_inferred_interolog_list.append(sibling_inferred_interolog)
+            interolog_wsi.quality))
     predicted_complex_list = []
     predicted_complex_set = inferred_interolog.predictedcomplex_set.filter(
         size__lte=LIMITS["COMPLEX_MAX_SIZE"])[:10]
@@ -392,10 +396,15 @@ def interolog(request, first_accession, second_accession):
         predicted_complex_protein_set = predicted_complex.proteins.all()[:10]
         predicted_complex_protein_list = list(predicted_complex_protein_set)
         predicted_complex_list.append(
-            [predicted_complex.id, predicted_complex_protein_list, predicted_complex.size])
+            [predicted_complex.id,
+             predicted_complex_protein_list,
+             predicted_complex.size])
     data["inferred_interolog"] = inferred_interolog
-    data["source_experimental_interaction_list"] = source_experimental_interaction_list
-    # data["sibling_inferred_interolog_list"] = sibling_inferred_interolog_list[:10]
+    data["source_experimental_interaction_list"] = sorted(
+        list(source_exp_intera_set),
+        key=lambda x: x[1],
+        reverse=True
+    )
     data["predicted_complex_list"] = predicted_complex_list
     return render(request, "interolog.html", data)
 
@@ -873,18 +882,18 @@ def api_lm_interaction(request):
             interolog_id = int(request.GET.get('element_id', 0))
             interolog = get_object_or_404(
                 PredictedProteinInteraction, pk=interolog_id)
-            source_experimental_interaction_list = []
+            source_experimental_interaction_set = set()
             interolog_with_same_interactors_set = PredictedProteinInteraction.objects.filter(
                 (Q(first=interolog.first) & Q(second=interolog.second)) |
                 (Q(second=interolog.first) & Q(first=interolog.second))
             ).order_by('-quality')[offset:offset+limit]
             for interolog_with_same_interactors in interolog_with_same_interactors_set:
                 source_experimental_interaction = interolog_with_same_interactors.origin_experimental
-                source_experimental_interaction_list.append([
+                source_experimental_interaction_set.add((
                     source_experimental_interaction,
-                    interolog_with_same_interactors.quality])
+                    interolog_with_same_interactors.quality))
             interaction_list = []
-            for interaction in source_experimental_interaction_list:
+            for interaction in source_experimental_interaction_set:
                 interaction_list.append(
                     {
                         'id': interaction[0].id,

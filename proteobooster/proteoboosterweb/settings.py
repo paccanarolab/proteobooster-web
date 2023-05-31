@@ -27,14 +27,14 @@ SECRET_KEY = os.environ.get(
     'django-insecure-8fsh0u1-09t!$@i(3_20ax^zx_7j_0ykbibh16oj@0pqcv8ng0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("PROTEOBOOSTER_DEBUG", default=0))
+DEBUG = int(os.environ.get("PROTEOBOOSTER_DEBUG", default=0)) == 1
 
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS = os.environ.get("PROTEOBOOSTER_ALLOWED_HOSTS",
                                default="").split(" ")
 CSRF_TRUSTED_ORIGINS = os.environ.get("PROTEOBOOSTER_CSRF_TRUSTED_ORIGINS",
                                       default="").split(" ")
-
+PROTEOBOOSTER_ORG_ID = os.environ.get("PROTEOBOOSTER_ORG_ID", default=1)
 
 # Application definition
 
@@ -91,16 +91,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'NumericPasswordValidator',
     },
 ]
 
