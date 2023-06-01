@@ -23,7 +23,7 @@ a:link, a:visited, a:hover, a:active {
 
 #main-logo {
   margin-top: 5px;
-  width: 145px;
+  height: 85%;
 }
 
 #base-header {
@@ -868,7 +868,7 @@ table-horizontal tbody > tr:last-child > td {
 @media only screen and (min-width: 1024px) {
   body {
     font-size: 1.1em;
-    grid-template-columns: 200px auto;
+    grid-template-columns: 250px auto;
     grid-template-rows: 75px auto;
     grid-template-areas: "header nav" "content content" "content content" "content content";
   }
